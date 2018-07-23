@@ -30,12 +30,13 @@ import common as common
 
 
 class SignCarPoint:
-    def __init__(self, image_dir, label_file):
+    def __init__(self, image_dir, label_file, index_file):
         self.img_files = common.get_files(image_dir)
         self.image_dir = image_dir
         self.label_file = label_file
         self.car_points = []
-        pass
+        self.index_file = index_file
+        return
 
     def mouse_click_events(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -46,43 +47,59 @@ class SignCarPoint:
             else:
                 print('self.car_points is too long, %s' % str(self.car_points))
 
-    def sign_start(self):
+    def sign_start(self, restart=False):
         cv2.namedWindow('sign_image')
         cv2.setMouseCallback('sign_image', self.mouse_click_events)    # 鼠标事件绑定
 
-        for img_file in self.img_files:
-            self.img = cv2.imread(img_file)
+        if restart is False:
+            try:
+                start_i = int(common.read_data(self.index_file, 'r'))
+                print('start_index: ' + str(start_i))
+            except Exception, e:
+                print e
+                start_i = 0
+        else:
+            start_i = 0
+
+        # for img_file in self.img_files:
+        while start_i < len(self.img_files):
+            print('[total] %d; [index] %d; [name] %s' % (len(self.img_files), start_i, self.img_files[start_i]))
+
+            self.img = cv2.imread(self.img_files[start_i])
             cv2.imshow('sign_image', self.img)
 
-            while (True):
+            while True:
                 cv2.imshow('sign_image', self.img)
 
                 # 保存这张图片
                 k = cv2.waitKey(1) & 0xFF
                 if k == ord('s'):
                     print('save ...')
-                    data = img_file + " " + str(len(self.car_points))
+                    data = self.img_files[start_i] + " " + str(len(self.car_points))
                     for (x, y) in self.car_points:
                         data += ' ' + str(x) + ' ' + str(y)
                     data += '\n'
 
                     common.write_data(self.label_file, data, 'a+')
+                    start_i += 1
+                    common.write_data(self.index_file, str(start_i), 'w')
+                    self.car_points = []
                     break
 
                 # 重新加载图片
                 if k == ord('r'):
                     print('re sign ...')
-                    self.img = cv2.imread(img_file)
+                    self.img = cv2.imread(self.img_files[start_i])
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
-
-            # 保存点信息：
-            self.car_points = []
 
 
 if __name__ == '__main__':
     image_dir = "/cyl_data/car_plate"
     label_file = "./car_plate_label.txt"
-    sign_point = SignCarPoint(image_dir, label_file)
+    index_file = "./index.txt"
+    sign_point = SignCarPoint(image_dir, label_file, index_file)
+
+
 
     sign_point.sign_start()
