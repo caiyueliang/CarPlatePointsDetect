@@ -62,6 +62,7 @@ def data_label(path):
 # 生成一个model
 class Model(object):
     def __CNN__(self):
+    # def __init__(self):
         model = Sequential()            # 178*178*3
         model.add(Conv2D(32, (3, 3), input_shape=(imgsize, imgsize, 3)))
         model.add(Activation('relu'))
@@ -127,6 +128,7 @@ class Model(object):
 
 
 if __name__ == '__main__':
-    mode = Model()
-    mode.train(mode, 50)
-    mode.save(mode)
+    model = Model()
+    my_model = model.__CNN__()
+    model.train(my_model, 50)
+    model.save(my_model)
