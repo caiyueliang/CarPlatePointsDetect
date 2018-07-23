@@ -58,12 +58,21 @@ class SignCarPoint:
                 cv2.imshow('sign_image', self.img)
 
                 # 保存这张图片
-                if cv2.waitKey(1) & 0xFF == ord('s'):
-                    
+                k = cv2.waitKey(1) & 0xFF
+                if k == ord('s'):
+                    print('save ...')
+                    data = img_file + " " + str(len(self.car_points))
+                    for (x, y) in self.car_points:
+                        data += ' ' + str(x) + ' ' + str(y)
+                    data += '\n'
+
+                    common.write_data(self.label_file, data, 'a+')
                     break
 
                 # 重新加载图片
-                if cv2.waitKey(1) & 0xFF == ord('r'):
+                if k == ord('r'):
+                    print('re sign ...')
+                    self.img = cv2.imread(img_file)
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
@@ -73,7 +82,7 @@ class SignCarPoint:
 
 if __name__ == '__main__':
     image_dir = "/cyl_data/car_plate"
-    label_file = "/cyl_data/car_plate_label.txt"
+    label_file = "./car_plate_label.txt"
     sign_point = SignCarPoint(image_dir, label_file)
 
     sign_point.sign_start()
