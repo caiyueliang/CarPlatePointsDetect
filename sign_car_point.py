@@ -86,7 +86,15 @@ class SignCarPoint:
                     self.car_points = []
                     break
 
-                
+                if k == ord('d'):
+                    print('save ...')
+                    common.exe_cmd('rm -r ' + self.img_files[start_i])
+                    self.img_files.pop(start_i)
+
+                    self.img = cv2.imread(self.img_files[start_i])
+                    cv2.imshow('sign_image', self.img)
+                    self.car_points = []
+
                 # 重新加载图片
                 if k == ord('r'):
                     print('re sign ...')

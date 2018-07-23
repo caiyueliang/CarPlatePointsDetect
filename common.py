@@ -3,8 +3,15 @@ import os
 
 from PIL import Image
 from PIL import ImageEnhance
+import subprocess
 import numpy as np
 import cv2
+
+
+def exe_cmd(cmd):
+    s = subprocess.Popen(str(cmd), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+    s.wait()
+    print(s)
 
 
 def mkdir_if_not_exist(path):

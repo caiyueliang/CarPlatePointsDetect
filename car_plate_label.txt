@@ -192,3 +192,4 @@
 /cyl_data/car_plate/587913_闽DR235T_0.png 4 66 149 279 123 64 217 278 186
 /cyl_data/car_plate/558887_粤YFM855_0.png 4 63 140 266 117 59 210 260 185
 /cyl_data/car_plate/558110_粤Y867J3_0.png 4 43 79 148 81 40 113 149 115
+/cyl_data/car_plate/575051_粤YRS229_0.png 4 74 163 305 137 78 251 308 219
