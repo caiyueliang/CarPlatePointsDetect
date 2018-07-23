@@ -86,6 +86,7 @@ class SignCarPoint:
                     self.car_points = []
                     break
 
+                
                 # 重新加载图片
                 if k == ord('r'):
                     print('re sign ...')
