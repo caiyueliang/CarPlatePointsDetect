@@ -15,7 +15,7 @@ import common as common
 
 
 class ModelCNN(object):
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=10, epoch_num=30):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=5, epoch_num=30):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
