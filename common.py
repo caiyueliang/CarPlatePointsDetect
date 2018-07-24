@@ -27,6 +27,14 @@ def get_files(file_dir):
     return L
 
 
+def get_img_files(file_dir):
+    L = []
+    for root, dirs, files in os.walk(file_dir):
+        for file in files:
+            if file.endswith(".png") or file.endswith(".jpg"):
+                L.append(os.path.join(root, file))      # os.path.join 获取完整路径
+    return L
+
 # 写数据 flag:'w+'
 def write_data(file_name, data, flag):
     with open(file_name, flag) as f:

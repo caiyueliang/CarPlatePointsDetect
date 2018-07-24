@@ -19,12 +19,19 @@ class ModelCNN(object):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
-        self.train_samples = len(common.get_files(train_path))
-        self.test_samples = len(common.get_files(test_path))
+        self.train_samples = len(common.get_img_files(train_path))
+        self.test_samples = len(common.get_img_files(test_path))
 
         self.img_size = img_size
         self.batch_size = batch_size
         self.epoch_num = epoch_num
+
+        print('[ModelCNN]')
+        print('train_samples: %d' % self.train_samples)
+        print('test_samples: %d' % self.test_samples)
+        print('img_size: %d' % self.img_size)
+        print('batch_size: %d' % self.batch_size)
+        print('epoch_num: %d' % self.epoch_num)
         pass
 
     def get_model(self):
