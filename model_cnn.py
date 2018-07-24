@@ -14,7 +14,7 @@ import common as common
 
 
 class ModelCNN(object):
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=32, epoch_num=50):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, epoch_num=50):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -64,46 +64,52 @@ class ModelCNN(object):
         model.fit_generator(self.data_label(self.train_path), callbacks=[check_point, early_stop, change_lr],
                             samples_per_epoch=int(self.train_samples // self.batch_size), epochs=self.epoch_num,
                             validation_steps=int(self.test_samples // self.batch_size),
-                            validation_data=self.data_label(self.test_samples))
+                            validation_data=self.data_label(self.test_path))
 
         # model.fit(traindata, trainlabel, batch_size=32, epochs=50,
         #           validation_data=(testdata, testlabel))
         model.evaluate_generator(self.data_label(self.test_samples))
 
     def data_label(self, path):
-        print('[data_label] path: ' + path)
-        f = open(path + "lable.txt", "r")
+        f = open(os.path.join(path, "label.txt"), "r")
         j = 0
         i = -1
-        datalist = []
-        labellist = []
+        # datalist = []
+        # labellist = []
+
         while True:
             for line in f.readlines():
-                print(line)
                 i += 1
                 j += 1
                 a = line.replace("\n", "")
-                b = a.split(",")
-                lable = b[1:]
-                # print(b[1:])
+                b = a.split(" ")
+                label = b[2:]
+                print(label)
+
                 # 对标签进行归一化（不归一化也行）
                 # for num in b[1:]:
                 #     lab = int(num) / 255.0
                 #     labellist.append(lab)
                 # lab = labellist[i * 10:j * 10]
-                imgname = path + b[0]
-                images = load_img(imgname)
-                images = img_to_array(images).astype('float32')
+                img_name = os.path.join(path, b[0])
+                img = cv2.imread(img_name)
+                img = cv2.resize(img, (self.img_size, self.img_size))
+                print(img.shape)
+                images = img_to_array(img).astype('float32')
+
+                # images = load_img(img_name)
+                # images = img_to_array(images).astype('float32')
+
                 # 对图片进行归一化（不归一化也行）
                 # images /= 255.0
                 image = np.expand_dims(images, axis=0)
-                lables = np.array(lable)
+                labels = np.array(label)
 
-                # lable =keras.utils.np_utils.to_categorical(lable)
+                # lable = keras.utils.np_utils.to_categorical(lable)
                 # lable = np.expand_dims(lable, axis=0)
-                lable = lables.reshape(1, 10)
+                label = labels.reshape(1, 8)
 
-                yield (image, lable)
+                yield (image, label)
 
     def save(self, model):
         print('Model Saved.')
