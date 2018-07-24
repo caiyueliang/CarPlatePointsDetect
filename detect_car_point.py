@@ -119,5 +119,6 @@ if __name__ == '__main__':
     models = model_cnn.ModelCNN(train_path, test_path, FILE_PATH)
 
     my_model = models.get_model()
+    # models.load(my_model)
     models.train(my_model)
     models.save(my_model)

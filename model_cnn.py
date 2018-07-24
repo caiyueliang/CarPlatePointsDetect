@@ -1,9 +1,10 @@
 # coding=utf-8
-from tensorflow.contrib.keras.api.keras.preprocessing.image import ImageDataGenerator,img_to_array
+from tensorflow.contrib.keras.api.keras.preprocessing.image import ImageDataGenerator, img_to_array
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.advanced_activations import PReLU
-from keras.layers.convolutional import Conv2D, MaxPooling2D,ZeroPadding2D
+from keras.layers.convolutional import Conv2D, MaxPooling2D, ZeroPadding2D
+from keras.layers.normalization import BatchNormalization
 from keras.preprocessing.image import load_img, img_to_array
 from keras.optimizers import SGD
 import numpy as np
@@ -14,7 +15,7 @@ import common as common
 
 
 class ModelCNN(object):
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, epoch_num=50):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=10, epoch_num=30):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -32,10 +33,12 @@ class ModelCNN(object):
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
+        model.add(BatchNormalization())
         model.add(Conv2D(32, (3, 3)))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
+        model.add(BatchNormalization())
         model.add(Conv2D(64, (3, 3)))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -50,13 +53,15 @@ class ModelCNN(object):
 
     def train(self, model):
         # print(lable.shape)
+
+        # 平方误差，
         model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
         # optimizer = SGD(lr=0.03, momentum=0.9, nesterov=True)
         # model.compile(loss='mse', optimizer=optimizer, metrics=['accuracy'])
         # epoch_num = 10
 
-        learning_rate = np.linspace(0.03, 0.01, self.epoch_num)
-        change_lr = LearningRateScheduler(lambda epoch: float(learning_rate[epoch]))
+        learning_rate = np.linspace(0.0001, 0.0001, self.epoch_num)
+        change_lr = LearningRateScheduler(lambda epoch: float(learning_rate[epoch]))            # 学习速率
         early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1, mode='auto')
         check_point = ModelCheckpoint('CNN_model_final.h5', monitor='val_loss', verbose=0, save_best_only=True,
                                       save_weights_only=False, mode='auto', period=1)
@@ -68,7 +73,7 @@ class ModelCNN(object):
 
         # model.fit(traindata, trainlabel, batch_size=32, epochs=50,
         #           validation_data=(testdata, testlabel))
-        model.evaluate_generator(self.data_label(self.test_samples))
+        model.evaluate_generator(self.data_label(self.test_path), steps=int(self.test_samples // self.batch_size))
 
     def data_label(self, path):
         f = open(os.path.join(path, "label.txt"), "r")
@@ -83,18 +88,13 @@ class ModelCNN(object):
                 j += 1
                 a = line.replace("\n", "")
                 b = a.split(" ")
-                label = b[2:]
-                print(label)
 
-                # 对标签进行归一化（不归一化也行）
-                # for num in b[1:]:
-                #     lab = int(num) / 255.0
-                #     labellist.append(lab)
-                # lab = labellist[i * 10:j * 10]
+                # =====================================================================
                 img_name = os.path.join(path, b[0])
                 img = cv2.imread(img_name)
+                old_size = img.shape[0]
+
                 img = cv2.resize(img, (self.img_size, self.img_size))
-                print(img.shape)
                 images = img_to_array(img).astype('float32')
 
                 # images = load_img(img_name)
@@ -103,12 +103,28 @@ class ModelCNN(object):
                 # 对图片进行归一化（不归一化也行）
                 # images /= 255.0
                 image = np.expand_dims(images, axis=0)
-                labels = np.array(label)
+
+                # =====================================================================
+                label = b[2:]
+                # print(label)
+                label = map(float, label)
+                # print(label)
+                label = np.array(label)
+                label = label * self.img_size / old_size
+                # label = label / old_size
+
+                # print(label)
+
+                # 对标签进行归一化（不归一化也行）
+                # for num in b[1:]:
+                #     lab = int(num) / 255.0
+                #     labellist.append(lab)
+                # lab = labellist[i * 10:j * 10]
 
                 # lable = keras.utils.np_utils.to_categorical(lable)
                 # lable = np.expand_dims(lable, axis=0)
-                label = labels.reshape(1, 8)
-
+                label = label.reshape(1, 8)
+                # print(label)
                 yield (image, label)
 
     def save(self, model):
