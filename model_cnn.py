@@ -63,21 +63,23 @@ class ModelCNN(object):
 
         model.fit_generator(self.data_label(self.train_path), callbacks=[check_point, early_stop, change_lr],
                             samples_per_epoch=int(self.train_samples // self.batch_size), epochs=self.epoch_num,
-                            validation_steps=int(self.test_samples // self.batch_size), validation_data=self.data_label(self.test_samples))
+                            validation_steps=int(self.test_samples // self.batch_size),
+                            validation_data=self.data_label(self.test_samples))
 
         # model.fit(traindata, trainlabel, batch_size=32, epochs=50,
         #           validation_data=(testdata, testlabel))
         model.evaluate_generator(self.data_label(self.test_samples))
 
     def data_label(self, path):
-        f = open(path + "lable-40.txt", "r")
+        print('[data_label] path: ' + path)
+        f = open(path + "lable.txt", "r")
         j = 0
         i = -1
         datalist = []
         labellist = []
         while True:
-
             for line in f.readlines():
+                print(line)
                 i += 1
                 j += 1
                 a = line.replace("\n", "")

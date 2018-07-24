@@ -105,8 +105,8 @@ class SignCarPoint:
 
 if __name__ == '__main__':
     image_dir = "/cyl_data/car_plate"
-    label_file = "./car_plate_label.txt"
-    index_file = "./index.txt"
+    label_file = "./label.txt"
+    index_file = "./i.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
     sign_point.sign_start()
