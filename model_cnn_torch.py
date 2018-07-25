@@ -40,8 +40,8 @@ class MyDataset(data.Dataset):
         if self.transforms:
             img = self.transforms(img)
 
-        # label = str_list[2:]
-        label = str_list[2:3]
+        label = str_list[2:]
+        # label = str_list[2:3]
         label = map(float, label)
         label = np.array(label)
         label = label * self.img_size / old_size
@@ -107,7 +107,7 @@ class CNN(nn.Module):
         self.dropout_1 = nn.Dropout(p=0.5)
 
         self.fc1 = nn.Linear(in_features=64*20*20, out_features=64)
-        self.fc2 = nn.Linear(in_features=64, out_features=1)
+        self.fc2 = nn.Linear(in_features=64, out_features=8)
 
     def forward(self, x):
         x1 = self.batch_1(x)
@@ -145,9 +145,7 @@ class CNN(nn.Module):
 
 
 class ModuleCNN():
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, epoch_num=30):
-        self.model = CNN()
-
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, use_gpu=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -155,14 +153,18 @@ class ModuleCNN():
         # self.test_samples = len(common.get_img_files(test_path))
         self.img_size = img_size
         self.batch_size = batch_size
-        self.epoch_num = epoch_num
+        self.use_gpu = use_gpu
 
         print('[ModuleCNN]')
         print('train_path: %s' % self.train_path)
         print('test_path: %s' % self.test_path)
         print('img_size: %d' % self.img_size)
         print('batch_size: %d' % self.batch_size)
-        print('epoch_num: %d' % self.epoch_num)
+
+        # 模型
+        self.model = CNN()
+        if self.use_gpu:
+            self.model.cuda()
 
         self.transform = T.Compose([
             T.Resize(self.img_size),
@@ -179,33 +181,65 @@ class ModuleCNN():
         # Data Loader (Input Pipeline)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+
+        self.loss = F.mse_loss
+        self.lr = 0.01
+        # self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.5)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
+
         pass
 
+    # def train(self, epoch):
+    #     # 每次输入barch_idx个数据
+    #     for epoch_i in range(epoch):
+    #         for batch_idx, (data, target) in enumerate(self.train_loader):
+    #             data, target = Variable(data), Variable(target)
+    #
+    #             optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
+    #             optimizer.zero_grad()
+    #             output = self.model(data)
+    #             # print('output', output)
+    #             # print('target', target)
+    #             # loss
+    #             # loss = F.nll_loss(output, target)
+    #             # loss = F.cross_entropy(output, target)
+    #             loss = F.mse_loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+    #             loss.backward()
+    #             # print('loss', loss)
+    #
+    #             # my_loss = MyLoss()
+    #             # loss = my_loss(output, target)
+    #
+    #             # update
+    #             optimizer.step()
+    #             if batch_idx % 10 == 0:
+    #                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+    #                     epoch_i, batch_idx * len(data), len(self.train_loader.dataset),
+    #                     100. * batch_idx / len(self.train_loader), loss.data[0]))
     def train(self, epoch):
+
         # 每次输入barch_idx个数据
-        for batch_idx, (data, target) in enumerate(self.train_loader):
-            data, target = Variable(data), Variable(target)
+        for epoch_i in range(epoch):
 
-            optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
-            optimizer.zero_grad()
-            output = self.model(data)
-            # print(output)
-            # print(target)
-            # loss
-            # loss = F.nll_loss(output, target)
-            # loss = F.cross_entropy(output, target)
-            loss = F.mse_loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
-            loss.backward()
+            for batch_idx, (data, target) in enumerate(self.train_loader):
+                data, target = Variable(data), Variable(target)
 
-            # my_loss = MyLoss()
-            # loss = my_loss(output, target)
+                if self.use_gpu:
+                    data = data.cuda()
 
-            # update
-            optimizer.step()
-            if batch_idx % 10 == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(data), len(self.train_loader.dataset),
-                    100. * batch_idx / len(self.train_loader), loss.data[0]))
+                self.optimizer.zero_grad()
+
+                output = self.model(data)
+                loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+                loss.backward()
+                # print('loss', loss)
+                self.optimizer.step()
+
+                # update
+                if batch_idx % 10 == 0:
+                    print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                        epoch_i, batch_idx * len(data), len(self.train_loader.dataset),
+                        100. * batch_idx / len(self.train_loader), loss.data[0]))
 
     def test(self):
         test_loss = 0
@@ -226,6 +260,11 @@ class ModuleCNN():
             test_loss, correct, len(self.test_loader.dataset),
             100. * correct / len(self.test_loader.dataset)))
 
+    # def load(self, path):
+    #     self.load_state_dict(torch.load(path))
+    #
+    # def save(self, name=None):
+
 
 if __name__ == '__main__':
     # model = CNN()
@@ -236,7 +275,7 @@ if __name__ == '__main__':
     train_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train"
     test_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test"
     model = ModuleCNN(train_dir, test_dir, "./1.h5")
-    model.train(100)
+    model.train(1000)
 
     # img_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_all"
     # label_file = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/label_all.txt"
