@@ -144,6 +144,14 @@ class CNN(nn.Module):
         output = x4
         return output
 
+    def load(self, name):
+        print('[Load model] %s...' % name)
+        self.load_state_dict(torch.load(name))
+
+    def save(self, name):
+        print('[Save model] %s ...' % name)
+        torch.save(self.state_dict(), name)
+
 
 class ModuleCNN():
     def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, lr=1e-3,
