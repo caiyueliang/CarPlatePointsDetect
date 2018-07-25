@@ -261,11 +261,11 @@ class ModuleCNN():
 
         img = cv2.imread(img_file)
         h, w, c = img.shape
+        for i in range(len(target)/2):
+            cv2.circle(img, (int(target[2*i]*h/self.img_size), int(target[2*i+1]*h/self.img_size)), 3, (0, 255, 0), -1)
+
         for i in range(len(output)/2):
             cv2.circle(img, (int(output[2*i]*h/self.img_size), int(output[2*i+1]*h/self.img_size)), 3, (0, 0, 255), -1)
-
-        for i in range(len(target)/2):
-            cv2.circle(img, (int(target[2*i]*h/self.img_size), int(target[2*i+1]*h/self.img_size)), 3, (255, 0, 0), -1)
 
         cv2.imshow('show_img', img)
         cv2.waitKey(0)
