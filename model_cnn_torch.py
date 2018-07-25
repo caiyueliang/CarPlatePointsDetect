@@ -15,7 +15,7 @@ import torch.optim as optim
 from torchvision import transforms as T
 from torch.autograd import Variable
 from torch.utils import data
-
+import cv2
 
 # 图片加载类
 class MyDataset(data.Dataset):
@@ -50,7 +50,7 @@ class MyDataset(data.Dataset):
         # label = label.reshape(1, 8)
         # print(label)
 
-        return img, label
+        return img, label, img_file
 
     def __len__(self):
         return len(self.records)
@@ -146,7 +146,8 @@ class CNN(nn.Module):
 
 
 class ModuleCNN():
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, re_train=False, use_gpu=False):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, lr=1e-3,
+                 re_train=False, use_gpu=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -164,6 +165,7 @@ class ModuleCNN():
         # 模型
         self.model = CNN()
         if self.use_gpu:
+            print('[use gpu] ...')
             self.model = self.model.cuda()
 
         # 加载模型
@@ -186,7 +188,7 @@ class ModuleCNN():
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
         self.loss = F.mse_loss
-        self.lr = 0.001
+        self.lr = lr
         # self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.5)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
 
@@ -196,7 +198,7 @@ class ModuleCNN():
         print('[train] epoch: %d' % epoch)
         for epoch_i in range(epoch):
 
-            for batch_idx, (data, target) in enumerate(self.train_loader):
+            for batch_idx, (data, target, _) in enumerate(self.train_loader):
                 data, target = Variable(data), Variable(target)
 
                 if self.use_gpu:
@@ -222,19 +224,27 @@ class ModuleCNN():
         correct = 0
 
         # 测试集
-        for data, target in self.test_loader:
-            data, target = Variable(data, volatile=True), Variable(target)
+        for data, target, img_files in self.test_loader:
+            data, target = Variable(data), Variable(target)
+
+            if self.use_gpu:
+                data = data.cuda()
+                target = target.cuda()
+
             output = self.model(data)
+
             # sum up batch loss
-            test_loss += F.nll_loss(output, target).data[0]
+            # test_loss += F.nll_loss(output, target).data[0]
+            test_loss += self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+
             # get the index of the max
-            pred = output.data.max(1, keepdim=True)[1]
-            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+            # pred = output.data.max(1, keepdim=True)[1]
+            # correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+            for i in range(len(output[:, 1])):
+                self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
 
         test_loss /= len(self.test_loader.dataset)
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(self.test_loader.dataset),
-            100. * correct / len(self.test_loader.dataset)))
+        print('\nTest set: Average loss: {:.4f}\n'.format(test_loss))
 
     def load(self, name):
         print('[Load model] %s...' % name)
@@ -244,6 +254,21 @@ class ModuleCNN():
         print('[Save model] %s ...' % name)
         torch.save(self.model.state_dict(), name)
 
+    def show_img(self, img_file, output, target):
+        print(img_file)
+        print(output)
+        print(target)
+
+        img = cv2.imread(img_file)
+        h, w, c = img.shape
+        for i in range(len(output)/2):
+            cv2.circle(img, (int(output[2*i]*h/self.img_size), int(output[2*i+1]*h/self.img_size)), 3, (0, 0, 255), -1)
+
+        for i in range(len(target)/2):
+            cv2.circle(img, (int(target[2*i]*h/self.img_size), int(target[2*i+1]*h/self.img_size)), 3, (255, 0, 0), -1)
+
+        cv2.imshow('show_img', img)
+        cv2.waitKey(0)
 
 # if __name__ == '__main__':
     # model = CNN()
