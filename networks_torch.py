@@ -147,8 +147,8 @@ class ModuleCNN():
         self.epoch_num = epoch_num
 
         print('[ModuleCNN]')
-        # print('train_samples: %d' % self.train_samples)
-        # print('test_samples: %d' % self.test_samples)
+        print('train_path: %s' % self.train_path)
+        print('test_path: %s' % self.test_path)
         print('img_size: %d' % self.img_size)
         print('batch_size: %d' % self.batch_size)
         print('epoch_num: %d' % self.epoch_num)
@@ -177,6 +177,8 @@ class ModuleCNN():
             optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
             optimizer.zero_grad()
             output = self.model(data)
+            print output
+            print target
             # loss
             loss = F.nll_loss(output, target)
             loss.backward()
