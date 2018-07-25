@@ -36,8 +36,9 @@ class CNN(nn.Module):
         self.batch_3 = nn.BatchNorm2d(32)
         self.conv_3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
 
-        self.fc1 = nn.Linear(in_features=64*20*20, out_features=64)
         self.dropout_1 = nn.Dropout(p=0.5)
+
+        self.fc1 = nn.Linear(in_features=64*20*20, out_features=64)
         self.fc2 = nn.Linear(in_features=64, out_features=8)
 
     def forward(self, x):
@@ -62,14 +63,13 @@ class CNN(nn.Module):
         x3 = F.max_pool2d(x3, kernel_size=2, stride=2, padding=0)
         print('max_pool2d', x3.size())
 
-        x4 = x3.view(x3.size(0), -1)
-        x4 = self.fc1(x4)
-        print('Linear', x4.size())
-        x4 = F.relu(x4)
-        x4 = self.dropout_1(x4)
-        print('Dropout', x4.size())
-        x4 - self.fc2(x4)
-        print('Linear', x4.size())
+        x4 = self.dropout_1(x3)
+        x4 = x4.view(x4.size(0), -1)
+        print('view', x4.size())
+        x4 = F.relu(self.fc1(x4))
+        print('fc1', x4.size())
+        x4 = F.relu(self.fc2(x4))
+        print('fc2', x4.size())
 
         output = x4
         return output
@@ -139,6 +139,7 @@ class CNN(nn.Module):
 
 if __name__ == '__main__':
     model = CNN()
+    # print model
     data = Variable(torch.randn(1, 3, 178, 178))
     x = model(data)
     print('x', x.size())
