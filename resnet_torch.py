@@ -26,4 +26,5 @@ class ResidualBlock(nn.Module):
 
 class ResNet(nn.Module):
 
-    def _
+    def __init__(self, num_classes=1000):
+        super(ResNet, self).__init__()

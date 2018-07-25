@@ -4,7 +4,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from torch.autograd import Variable
-
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torchvision import datasets, transforms
+from torch.autograd import Variable
 
 # model.add(Conv2D(32, (3, 3), input_shape=(self.img_size, self.img_size, 3)))
 # model.add(Activation('relu'))
@@ -44,103 +49,109 @@ class CNN(nn.Module):
     def forward(self, x):
         x1 = self.batch_1(x)
         x1 = self.conv_1(x1)
-        print('conv1', x1.size())
+        # print('conv1', x1.size())
         x1 = F.relu(x1)
         x1 = F.max_pool2d(x1, kernel_size=2, stride=2, padding=0)
-        print('max_pool2d', x1.size())
+        # print('max_pool2d', x1.size())
 
         x2 = self.batch_2(x1)
         x2 = self.conv_2(x2)
-        print('conv2', x2.size())
+        # print('conv2', x2.size())
         x2 = F.relu(x2)
         x2 = F.max_pool2d(x2, kernel_size=2, stride=2, padding=0)
-        print('max_pool2d', x2.size())
+        # print('max_pool2d', x2.size())
 
         x3 = self.batch_3(x2)
         x3 = self.conv_3(x3)
-        print('conv3', x3.size())
+        # print('conv3', x3.size())
         x3 = F.relu(x3)
         x3 = F.max_pool2d(x3, kernel_size=2, stride=2, padding=0)
-        print('max_pool2d', x3.size())
+        # print('max_pool2d', x3.size())
 
         x4 = self.dropout_1(x3)
-        x4 = x4.view(x4.size(0), -1)
-        print('view', x4.size())
+        # x4 = x4.view(x4.size(0), -1)
+        x4 = x4.view(-1, 64*20*20)
+        # print('view', x4.size())
         x4 = F.relu(self.fc1(x4))
-        print('fc1', x4.size())
+        # print('fc1', x4.size())
         x4 = F.relu(self.fc2(x4))
-        print('fc2', x4.size())
+        # print('fc2', x4.size())
 
         output = x4
         return output
 
 
-# class FaceBox(nn.Module):
-#     input_size = 1024
-#
-#     def __init__(self):
-#         super(FaceBox, self).__init__()
-#
-#         #model
-#         self.conv1 = nn.Conv2d(3, 24, kernel_size=7, stride=4, padding=3)
-#         self.conv2 = nn.Conv2d(48, 64, kernel_size=5, stride=2, padding=2)
-#
-#         self.inception1 = Inception()
-#         self.inception2 = Inception()
-#         self.inception3 = Inception()
-#
-#         self.conv3_1 = nn.Conv2d(128, 128, kernel_size=1)
-#         self.conv3_2 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1)
-#         self.conv4_1 = nn.Conv2d(256, 128, kernel_size=1)
-#         self.conv4_2 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1)
-#
-#         self.multilbox = MultiBoxLayer()
-#
-#     def forward(self, x):
-#         hs = []
-#
-#         x = self.conv1(x)
-#         print('conv1', x.size())
-#         x = torch.cat((F.relu(x), F.relu(-x)), 1)
-#         print('CReLu', x.size())
-#
-#         x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
-#         print('max_pool2d', x.size())
-#         x = self.conv2(x)
-#         print('conv2', x.size())
-#         x = torch.cat((F.relu(x), F.relu(-x)), 1)
-#         print('CReLu', x.size())
-#         x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
-#         print('max_pool2d', x.size())
-#
-#         x = self.inception1(x)
-#         print('inception1', x.size())
-#         x = self.inception2(x)
-#         print('inception2', x.size())
-#         x = self.inception3(x)
-#         print('inception3', x.size())
-#         hs.append(x)
-#
-#         x = self.conv3_1(x)
-#         print('conv3_1', x.size())
-#         x = self.conv3_2(x)
-#         print('conv3_2', x.size())
-#         hs.append(x)
-#
-#         x = self.conv4_1(x)
-#         print('conv4_1', x.size())
-#         x = self.conv4_2(x)
-#         print('conv4_2', x.size())
-#         hs.append(x)
-#         loc_preds, conf_preds = self.multilbox(hs)
-#
-#         return loc_preds, conf_preds
+class ModuleCNN(nn.Module):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=5, epoch_num=30):
+        self.model = CNN()
+
+        self.train_path = train_path
+        self.test_path = test_path
+        self.model_file = model_file
+        # self.train_samples = len(common.get_img_files(train_path))
+        # self.test_samples = len(common.get_img_files(test_path))
+        self.img_size = img_size
+        self.batch_size = batch_size
+        self.epoch_num = epoch_num
+
+        print('[ModelCNN]')
+        print('train_samples: %d' % self.train_samples)
+        print('test_samples: %d' % self.test_samples)
+        print('img_size: %d' % self.img_size)
+        print('batch_size: %d' % self.batch_size)
+        print('epoch_num: %d' % self.epoch_num)
+
+        # MNIST Dataset
+        train_dataset = datasets.MNIST(root='./mnist_data/', train=True, transform=transforms.ToTensor(), download=True)
+        test_dataset = datasets.MNIST(root='./mnist_data/', train=False, transform=transforms.ToTensor())
+
+        # Data Loader (Input Pipeline)
+        self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+        self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+        pass
+
+    def train(self, epoch):
+        # 每次输入barch_idx个数据
+        for batch_idx, (data, target) in enumerate(self.train_loader):
+            data, target = Variable(data), Variable(target)
+
+            optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
+            optimizer.zero_grad()
+            output = model(data)
+            # loss
+            loss = F.nll_loss(output, target)
+            loss.backward()
+            # update
+            optimizer.step()
+            if batch_idx % 200 == 0:
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, batch_idx * len(data), len(self.train_loader.dataset),
+                    100. * batch_idx / len(self.train_loader), loss.data[0]))
+
+    def test(self):
+        test_loss = 0
+        correct = 0
+
+        # 测试集
+        for data, target in self.test_loader:
+            data, target = Variable(data, volatile=True), Variable(target)
+            output = model(data)
+            # sum up batch loss
+            test_loss += F.nll_loss(output, target).data[0]
+            # get the index of the max
+            pred = output.data.max(1, keepdim=True)[1]
+            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+
+        test_loss /= len(self.test_loader.dataset)
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            test_loss, correct, len(self.test_loader.dataset),
+            100. * correct / len(self.test_loader.dataset)))
 
 
 if __name__ == '__main__':
     model = CNN()
     # print model
-    data = Variable(torch.randn(1, 3, 178, 178))
+    data = Variable(torch.randn(10, 3, 178, 178))
     x = model(data)
     print('x', x.size())
 
