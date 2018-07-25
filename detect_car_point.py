@@ -3,8 +3,6 @@ import model_cnn
 import networks_torch
 
 
-
-
 if __name__ == '__main__':
     FILE_PATH = './CNN_model_final.h5'
     train_path = '/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train'

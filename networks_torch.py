@@ -1,4 +1,8 @@
 # encoding:utf-8
+import os
+import common
+import numpy as np
+from PIL import Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,8 +12,56 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torchvision import datasets, transforms
+from torchvision import transforms as T
+from torchvision import datasets
 from torch.autograd import Variable
+from torch.utils import data
+
+img_size = 178
+
+transform = T.Compose([
+    T.Resize(img_size),
+    T.ToTensor(),
+    T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
+])
+
+
+# 图片加载类
+class MyDataset(data.Dataset):
+    def __init__(self, root_dir, label_file, transforms=None):
+        self.root_dir = root_dir
+        records_txt = common.read_data(label_file, 'r')
+        self.records = records_txt.split('\n')
+
+        # imgs = os.listdir(root)
+        # self.imgs = [os.path.join(root, img) for img in imgs]
+        # self.label_path = label_path
+        self.transforms = transforms
+
+    def __getitem__(self, index):
+        record = self.records[index]
+        str_list = record.split(" ")
+        img_file = os.path.join(self.root_dir, str_list[0])
+
+        img = Image.open(img_file)
+        old_size = img.size[0]
+        if self.transforms:
+            img = self.transforms(img)
+
+        label = str_list[2:]
+        label = map(float, label)
+        label = np.array(label)
+        label = label * img_size / old_size
+        # label = label / old_size
+        print(label)
+        # label = label.reshape(1, 8)
+        # print(label)
+
+        return img, label
+
+    def __len__(self):
+        return len(self.records)
+
 
 # model.add(Conv2D(32, (3, 3), input_shape=(self.img_size, self.img_size, 3)))
 # model.add(Activation('relu'))
@@ -81,8 +133,8 @@ class CNN(nn.Module):
         return output
 
 
-class ModuleCNN(nn.Module):
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=5, epoch_num=30):
+class ModuleCNN():
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, epoch_num=30):
         self.model = CNN()
 
         self.train_path = train_path
@@ -94,16 +146,23 @@ class ModuleCNN(nn.Module):
         self.batch_size = batch_size
         self.epoch_num = epoch_num
 
-        print('[ModelCNN]')
-        print('train_samples: %d' % self.train_samples)
-        print('test_samples: %d' % self.test_samples)
+        print('[ModuleCNN]')
+        # print('train_samples: %d' % self.train_samples)
+        # print('test_samples: %d' % self.test_samples)
         print('img_size: %d' % self.img_size)
         print('batch_size: %d' % self.batch_size)
         print('epoch_num: %d' % self.epoch_num)
 
         # MNIST Dataset
-        train_dataset = datasets.MNIST(root='./mnist_data/', train=True, transform=transforms.ToTensor(), download=True)
-        test_dataset = datasets.MNIST(root='./mnist_data/', train=False, transform=transforms.ToTensor())
+        # train_dataset = datasets.MNIST(root='./mnist_data/', train=True, transform=transforms.ToTensor(), download=True)
+        # test_dataset = datasets.MNIST(root='./mnist_data/', train=False, transform=transforms.ToTensor())
+        train_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train"
+        train_label = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/label_train.txt"
+        train_dataset = MyDataset(train_dir, train_label, transform)
+
+        test_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test"
+        test_label = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/label_test.txt"
+        test_dataset = MyDataset(test_dir, test_label, transform)
 
         # Data Loader (Input Pipeline)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -115,9 +174,9 @@ class ModuleCNN(nn.Module):
         for batch_idx, (data, target) in enumerate(self.train_loader):
             data, target = Variable(data), Variable(target)
 
-            optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
+            optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
             optimizer.zero_grad()
-            output = model(data)
+            output = self.model(data)
             # loss
             loss = F.nll_loss(output, target)
             loss.backward()
@@ -135,7 +194,7 @@ class ModuleCNN(nn.Module):
         # 测试集
         for data, target in self.test_loader:
             data, target = Variable(data, volatile=True), Variable(target)
-            output = model(data)
+            output = self.model(data)
             # sum up batch loss
             test_loss += F.nll_loss(output, target).data[0]
             # get the index of the max
@@ -149,9 +208,24 @@ class ModuleCNN(nn.Module):
 
 
 if __name__ == '__main__':
-    model = CNN()
-    # print model
-    data = Variable(torch.randn(10, 3, 178, 178))
-    x = model(data)
-    print('x', x.size())
+    # model = CNN()
+    # data = Variable(torch.randn(10, 3, 178, 178))
+    # x = model(data)
+    # print('x', x.size())
+
+    model = ModuleCNN("./", "./", "./1.h5")
+    model.train(10)
+
+    # img_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_all"
+    # label_file = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/label_all.txt"
+    # my_dataset = MyDataset(img_dir, label_file, transform)
+    # img, label = my_dataset[0]
+
+
+
+
+
+
+
+
 
