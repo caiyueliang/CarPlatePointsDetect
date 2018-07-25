@@ -1,6 +1,5 @@
 # coding=utf-8
-import model_cnn
-import networks_torch
+import model_cnn_torch
 
 
 if __name__ == '__main__':
@@ -8,9 +7,5 @@ if __name__ == '__main__':
     train_path = '/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train'
     test_path = '/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test'
 
-    models = model_cnn.ModelCNN(train_path, test_path, FILE_PATH)
-
-    my_model = models.get_model()
-    # models.load(my_model)
-    models.train(my_model)
-    models.save(my_model)
+    model = model_cnn_torch.ModuleCNN(train_path, test_path, FILE_PATH)
+    model.train(10)
