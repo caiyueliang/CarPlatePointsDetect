@@ -13,25 +13,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import transforms as T
-from torchvision import datasets
 from torch.autograd import Variable
 from torch.utils import data
-
-img_size = 178
-
-transform = T.Compose([
-    T.Resize(img_size),
-    T.ToTensor(),
-    T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
-])
 
 
 # 图片加载类
 class MyDataset(data.Dataset):
-    def __init__(self, root_dir, label_file, transforms=None):
+    def __init__(self, root_dir, label_file, img_size, transforms=None):
         self.root_dir = root_dir
         records_txt = common.read_data(label_file, 'r')
         self.records = records_txt.split('\n')
+        self.img_size = img_size
 
         # imgs = os.listdir(root)
         # self.imgs = [os.path.join(root, img) for img in imgs]
@@ -48,10 +40,11 @@ class MyDataset(data.Dataset):
         if self.transforms:
             img = self.transforms(img)
 
-        label = str_list[2:]
+        # label = str_list[2:]
+        label = str_list[2:3]
         label = map(float, label)
         label = np.array(label)
-        label = label * img_size / old_size
+        label = label * self.img_size / old_size
         # label = label / old_size
         # print(label)
         # label = label.reshape(1, 8)
@@ -62,6 +55,24 @@ class MyDataset(data.Dataset):
     def __len__(self):
         return len(self.records)
 
+
+# 自定义Loss
+class MyLoss(nn.Module):
+    def __init__(self):
+        super(MyLoss, self).__init__()
+        return
+
+    def forward(self, outputs, targets):                      # mse：最小平方误差函数
+        loss_list = []
+        for output, target in zip(outputs, targets):
+            print output
+            print target
+            loss = 0
+            for x, y in zip(output, target):
+                print x, y
+                loss += torch.sqrt(x - y)
+            loss_list.append(loss)
+        return loss_list
 
 # model.add(Conv2D(32, (3, 3), input_shape=(self.img_size, self.img_size, 3)))
 # model.add(Activation('relu'))
@@ -96,7 +107,7 @@ class CNN(nn.Module):
         self.dropout_1 = nn.Dropout(p=0.5)
 
         self.fc1 = nn.Linear(in_features=64*20*20, out_features=64)
-        self.fc2 = nn.Linear(in_features=64, out_features=8)
+        self.fc2 = nn.Linear(in_features=64, out_features=1)
 
     def forward(self, x):
         x1 = self.batch_1(x)
@@ -153,11 +164,17 @@ class ModuleCNN():
         print('batch_size: %d' % self.batch_size)
         print('epoch_num: %d' % self.epoch_num)
 
+        self.transform = T.Compose([
+            T.Resize(self.img_size),
+            T.ToTensor(),
+            T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
+        ])
+
         # Dataset
         train_label = os.path.join(self.train_path, 'label.txt')
-        train_dataset = MyDataset(self.train_path, train_label, transform)
+        train_dataset = MyDataset(self.train_path, train_label, self.img_size, self.transform)
         test_label = os.path.join(self.test_path, 'label.txt')
-        test_dataset = MyDataset(self.test_path, test_label, transform)
+        test_dataset = MyDataset(self.test_path, test_label, self.img_size, self.transform)
 
         # Data Loader (Input Pipeline)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -172,14 +189,20 @@ class ModuleCNN():
             optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
             optimizer.zero_grad()
             output = self.model(data)
-            print output
-            print target
+            # print(output)
+            # print(target)
             # loss
-            loss = F.nll_loss(output, target)
+            # loss = F.nll_loss(output, target)
+            # loss = F.cross_entropy(output, target)
+            loss = F.mse_loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
             loss.backward()
+
+            # my_loss = MyLoss()
+            # loss = my_loss(output, target)
+
             # update
             optimizer.step()
-            if batch_idx % 200 == 0:
+            if batch_idx % 10 == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(self.train_loader.dataset),
                     100. * batch_idx / len(self.train_loader), loss.data[0]))
@@ -213,7 +236,7 @@ if __name__ == '__main__':
     train_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train"
     test_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test"
     model = ModuleCNN(train_dir, test_dir, "./1.h5")
-    model.train(10)
+    model.train(100)
 
     # img_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_all"
     # label_file = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/label_all.txt"
