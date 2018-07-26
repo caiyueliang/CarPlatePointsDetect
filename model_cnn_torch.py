@@ -1,6 +1,7 @@
 # encoding:utf-8
 import os
 import common
+import random
 import numpy as np
 from PIL import Image
 from torch.autograd import Function
@@ -9,6 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import transforms as T
+from torchvision.transforms import functional
 from torch.autograd import Variable
 from torch.utils import data
 import cv2
@@ -16,11 +18,12 @@ import cv2
 
 # 图片加载类
 class MyDataset(data.Dataset):
-    def __init__(self, root_dir, label_file, img_size, transforms=None):
+    def __init__(self, root_dir, label_file, img_size, transforms=None, is_train=False):
         self.root_dir = root_dir
         records_txt = common.read_data(label_file, 'r')
         self.records = records_txt.split('\n')
         self.img_size = img_size
+        self.is_train = is_train
 
         # imgs = os.listdir(root)
         # self.imgs = [os.path.join(root, img) for img in imgs]
@@ -33,26 +36,42 @@ class MyDataset(data.Dataset):
         img_file = os.path.join(self.root_dir, str_list[0])
 
         img = Image.open(img_file)
-        print('[__getitem__] img.size: ', img.size)
         old_size = img.size[0]
-        if self.transforms:
-            img = self.transforms(img)
 
         label = str_list[2:]
-        # label = str_list[2:3]
         label = map(float, label)
         label = np.array(label)
+
+        # if self.is_train:                                               # 训练模式，才做变换
+        #     img, label = self.RandomHorizontalFlip(img, label)          # 图片做随机水平翻转
+        #     self.show_img(img, label)
+
         label = label * self.img_size / old_size
-        # label = label / old_size
-        # print(label)
-        # label = label.reshape(1, 8)
-        # print(label)
+        if self.transforms:
+            img = self.transforms(img)
 
         return img, label, img_file
 
     def __len__(self):
         return len(self.records)
 
+    # 图片做随机水平翻转
+    def RandomHorizontalFlip(self, img, label, p=0.5):
+        if random.random() < p:
+            w, h = img.size
+            img = functional.hflip(img)
+            for i in range(len(label)/2):
+                label[2*i] = w - label[2*i]
+
+        return img, label
+
+    def show_img(self, img, output):
+        img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        for i in range(len(output)/2):
+            cv2.circle(img, (int(output[2*i]), int(output[2*i+1])), 3, (0, 0, 255), -1)
+
+        cv2.imshow('show_img', img)
+        cv2.waitKey(0)
 
 # 自定义Loss
 class MyLoss(nn.Module):
@@ -60,7 +79,7 @@ class MyLoss(nn.Module):
         super(MyLoss, self).__init__()
         return
 
-    def forward(self, outputs, targets):                      # mse：最小平方误差函数
+    def forward(self, outputs, targets):                            # mse：最小平方误差函数
         loss_list = []
         for output, target in zip(outputs, targets):
             print output
@@ -186,7 +205,6 @@ class ModuleCNN():
             T.Resize(self.img_size),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5]),
-            T.RandomHorizontalFlip(0.5)
         ])
 
         self.transform_test = T.Compose([
@@ -197,9 +215,9 @@ class ModuleCNN():
 
         # Dataset
         train_label = os.path.join(self.train_path, 'label.txt')
-        train_dataset = MyDataset(self.train_path, train_label, self.img_size, self.transform_test)
+        train_dataset = MyDataset(self.train_path, train_label, self.img_size, self.transform_test, is_train=True)
         test_label = os.path.join(self.test_path, 'label.txt')
-        test_dataset = MyDataset(self.test_path, test_label, self.img_size, self.transform_test)
+        test_dataset = MyDataset(self.test_path, test_label, self.img_size, self.transform_test, is_train=False)
         # Data Loader (Input Pipeline)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -215,6 +233,7 @@ class ModuleCNN():
         print('[train] epoch: %d' % epoch)
         for epoch_i in range(epoch):
 
+            print('================================================')
             for batch_idx, (data, target, _) in enumerate(self.train_loader):
                 data, target = Variable(data), Variable(target)
 
@@ -230,48 +249,47 @@ class ModuleCNN():
                 self.optimizer.step()
 
                 # update
-                if batch_idx % 10 == 0:
-                    print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i, batch_idx * len(data),
+                if batch_idx == 0:
+                # if batch_idx % 10 == 0:
+                    print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i, batch_idx * len(data),
                         len(self.train_loader.dataset), 100. * batch_idx / len(self.train_loader), loss.data[0]))
+
+            self.test()
 
         self.save(self.model_file)
 
-    def test(self):
+    def test(self, show_img=False):
         test_loss = 0
         correct = 0
 
         # 测试集
         for data, target, img_files in self.test_loader:
-            print('[test] data.size: ', data.size())
+            # print('[test] data.size: ', data.size())
             data, target = Variable(data), Variable(target)
-            print('[test] data.size: ', data.size())
+            # print('[test] data.size: ', data.size())
 
             if self.use_gpu:
                 data = data.cuda()
                 target = target.cuda()
 
             output = self.model(data)
-
             # sum up batch loss
-            # test_loss += F.nll_loss(output, target).data[0]
             test_loss += self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
 
-            # get the index of the max
-            # pred = output.data.max(1, keepdim=True)[1]
-            # correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-            for i in range(len(output[:, 1])):
-                self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
+            if show_img:
+                for i in range(len(output[:, 1])):
+                    self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
 
         test_loss /= len(self.test_loader.dataset)
-        print('\nTest set: Average loss: {:.4f}\n'.format(test_loss))
+        print('[Test] set: Average loss: {:.4f}\n'.format(test_loss))
 
     def load(self, name):
-        print('[Load model] %s...' % name)
-        self.model.load_state_dict(torch.load(name))
+        # self.model.load_state_dict(torch.load(name))
+        self.model.load(name)
 
     def save(self, name):
-        print('[Save model] %s ...' % name)
-        torch.save(self.model.state_dict(), name)
+        # torch.save(self.model.state_dict(), name)
+        self.model.save(name)
 
     def show_img(self, img_file, output, target):
         print(img_file)
@@ -289,11 +307,12 @@ class ModuleCNN():
         cv2.imshow('show_img', img)
         cv2.waitKey(0)
 
+
 # if __name__ == '__main__':
-#     model = CNN()
-#     data = Variable(torch.randn(1, 3, 178, 178))
-#     x = model(data)
-#     print('x', x.size())
+    # model = CNN()
+    # data = Variable(torch.randn(1, 3, 178, 178))
+    # x = model(data)
+    # print('x', x.size())
 
     # train_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train"
     # test_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test"
@@ -305,6 +324,13 @@ class ModuleCNN():
     # my_dataset = MyDataset(img_dir, label_file, transform)
     # img, label = my_dataset[0]
 
+    # im = Image.open('/home/caiyueliang/deeplearning/lpr-service/capture_service/capture_image/96.3_96.7_use_box/failed/481724_闽DK7103.jpg')
+    # # 获得图像尺寸:
+    # w, h = im.size
+    # print(im.size)
+    #
+    # img = cv2.imread('/home/caiyueliang/deeplearning/lpr-service/capture_service/capture_image/96.3_96.7_use_box/failed/481724_闽DK7103.jpg')
+    # print(img.shape)
 
 
 
