@@ -7,6 +7,6 @@ if __name__ == '__main__':
     train_path = '/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train'
     test_path = '/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test'
 
-    model = model_cnn_torch.ModuleCNN(train_path, test_path, FILE_PATH, lr=1e-5, use_gpu=True)
+    model = model_cnn_torch.ModuleCNN(train_path, test_path, FILE_PATH, lr=1e-5)
     # model.train(100)
     model.test()

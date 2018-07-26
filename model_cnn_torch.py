@@ -3,11 +3,7 @@ import os
 import common
 import numpy as np
 from PIL import Image
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Function
-from torch.autograd import Variable
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -16,6 +12,7 @@ from torchvision import transforms as T
 from torch.autograd import Variable
 from torch.utils import data
 import cv2
+
 
 # 图片加载类
 class MyDataset(data.Dataset):
@@ -36,6 +33,7 @@ class MyDataset(data.Dataset):
         img_file = os.path.join(self.root_dir, str_list[0])
 
         img = Image.open(img_file)
+        print('[__getitem__] img.size: ', img.size)
         old_size = img.size[0]
         if self.transforms:
             img = self.transforms(img)
@@ -154,15 +152,18 @@ class CNN(nn.Module):
 
 
 class ModuleCNN():
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, lr=1e-3,
-                 re_train=False, use_gpu=False):
+    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, lr=1e-3, re_train=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
         self.img_size = img_size
         self.batch_size = batch_size
         self.re_train = re_train
-        self.use_gpu = use_gpu
+
+        if torch.cuda.is_available():
+            self.use_gpu = True
+        else:
+            self.use_gpu = False
 
         print('[ModuleCNN]')
         print('train_path: %s' % self.train_path)
@@ -180,7 +181,15 @@ class ModuleCNN():
         if os.path.exists(self.model_file) and not self.re_train:
             self.load(self.model_file)
 
-        self.transform = T.Compose([
+        # RandomHorizontalFlip
+        self.transform_train = T.Compose([
+            T.Resize(self.img_size),
+            T.ToTensor(),
+            T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5]),
+            T.RandomHorizontalFlip(0.5)
+        ])
+
+        self.transform_test = T.Compose([
             T.Resize(self.img_size),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
@@ -188,9 +197,9 @@ class ModuleCNN():
 
         # Dataset
         train_label = os.path.join(self.train_path, 'label.txt')
-        train_dataset = MyDataset(self.train_path, train_label, self.img_size, self.transform)
+        train_dataset = MyDataset(self.train_path, train_label, self.img_size, self.transform_test)
         test_label = os.path.join(self.test_path, 'label.txt')
-        test_dataset = MyDataset(self.test_path, test_label, self.img_size, self.transform)
+        test_dataset = MyDataset(self.test_path, test_label, self.img_size, self.transform_test)
         # Data Loader (Input Pipeline)
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -233,7 +242,9 @@ class ModuleCNN():
 
         # 测试集
         for data, target, img_files in self.test_loader:
+            print('[test] data.size: ', data.size())
             data, target = Variable(data), Variable(target)
+            print('[test] data.size: ', data.size())
 
             if self.use_gpu:
                 data = data.cuda()
@@ -279,10 +290,10 @@ class ModuleCNN():
         cv2.waitKey(0)
 
 # if __name__ == '__main__':
-    # model = CNN()
-    # data = Variable(torch.randn(10, 3, 178, 178))
-    # x = model(data)
-    # print('x', x.size())
+#     model = CNN()
+#     data = Variable(torch.randn(1, 3, 178, 178))
+#     x = model(data)
+#     print('x', x.size())
 
     # train_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_train"
     # test_dir = "/home/caiyueliang/deeplearning/CarPlatePointsDetect/Data/car_plate_test"
