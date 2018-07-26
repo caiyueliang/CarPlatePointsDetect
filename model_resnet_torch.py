@@ -37,10 +37,10 @@ class ResNet(nn.Module):
         )
 
         # 重复的layer，分别有3,4,6,3个residual block
-        self.layer1 = self._make_layer(64, 128, 3)
-        self.layer2 = self._make_layer(128, 256, 4, stride=2)
-        self.layer3 = self._make_layer(256, 512, 6, stride=2)
-        self.layer4 = self._make_layer(512, 512, 3, stride=2)
+        self.layer1 = self._make_layer(64, 128, 2)
+        self.layer2 = self._make_layer(128, 256, 2, stride=2)
+        self.layer3 = self._make_layer(256, 512, 2, stride=2)
+        self.layer4 = self._make_layer(512, 512, 2, stride=2)
 
         # 分类用的全连接（这边不是分类）
         self.fc = nn.Linear(512, num_classes)

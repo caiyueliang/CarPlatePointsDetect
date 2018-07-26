@@ -170,8 +170,8 @@ class CNN(nn.Module):
         torch.save(self.state_dict(), name)
 
 
-class ModuleCNN():
-    def __init__(self, train_path, test_path, model_file, img_size=178, batch_size=8, lr=1e-3, re_train=False):
+class ModuleTrain():
+    def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3, re_train=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -191,7 +191,8 @@ class ModuleCNN():
         print('batch_size: %d' % self.batch_size)
 
         # 模型
-        self.model = CNN()
+        self.model = model
+
         if self.use_gpu:
             print('[use gpu] ...')
             self.model = self.model.cuda()
