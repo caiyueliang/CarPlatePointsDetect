@@ -71,10 +71,17 @@ class ResNet(nn.Module):
         x = self.fc(x)
         return x
 
+from torchvision import models
 
 if __name__ == '__main__':
     model = ResNet()
-    input = Variable(torch.randn(8, 3, 224, 224))
+    print model
+    input = Variable(torch.randn(4, 3, 224, 224))
     print (input.size())
     o = model(input)
+    print (o.size())
+
+    model_1 = models.resnet34(num_classes=8)
+    print model_1
+    o = model_1(input)
     print (o.size())
