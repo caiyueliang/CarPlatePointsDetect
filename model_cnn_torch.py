@@ -204,7 +204,8 @@ class ModuleTrain():
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
-        self.loss = F.mse_loss
+        # self.loss = F.mse_loss
+        self.loss = nn.MSELoss
         self.lr = lr
         # self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.5)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
@@ -223,18 +224,24 @@ class ModuleTrain():
                     data = data.cuda()
                     target = target.cuda()
 
+                # 梯度清0
                 self.optimizer.zero_grad()
 
+                # 计算损失
                 output = self.model(data)
                 loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
-                loss.backward()                                 # 反向传播计算梯度
+
+                # 反向传播计算梯度
+                loss.backward()
+
+                # 更新参数
                 self.optimizer.step()
 
                 # update
                 if batch_idx == 0:
                     print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i,
                         batch_idx * len(data), len(self.train_loader.dataset),
-                        100. * batch_idx / len(self.train_loader.dataset), loss.item())         # loss.data[0]))
+                        100. * batch_idx / len(self.train_loader.dataset), loss.item()))    # loss.data[0]))
 
             self.test()
 
