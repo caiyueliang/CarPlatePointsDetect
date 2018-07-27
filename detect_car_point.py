@@ -13,5 +13,5 @@ if __name__ == '__main__':
     model = model_resnet_torch.ResNet(num_classes=8)
     model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=8, img_size=224, lr=1e-5)
 
-    model_train.train(30)
+    model_train.train(10)
     model_train.test(show_img=True)
