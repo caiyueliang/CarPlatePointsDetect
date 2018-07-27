@@ -92,25 +92,6 @@ class MyLoss(nn.Module):
         return loss_list
 
 
-# model.add(Conv2D(32, (3, 3), input_shape=(self.img_size, self.img_size, 3)))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-#
-# model.add(BatchNormalization())
-# model.add(Conv2D(32, (3, 3)))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-#
-# model.add(BatchNormalization())
-# model.add(Conv2D(64, (3, 3)))
-# model.add(Activation('relu'))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-#
-# model.add(Flatten())
-# model.add(Dense(64))
-# model.add(Activation('relu'))
-# model.add(Dropout(0.5))
-# model.add(Dense(8))
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -246,14 +227,14 @@ class ModuleTrain():
 
                 output = self.model(data)
                 loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
-                loss.backward()
+                loss.backward()                                 # 反向传播计算梯度
                 self.optimizer.step()
 
                 # update
                 if batch_idx == 0:
                     print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i,
                         batch_idx * len(data), len(self.train_loader.dataset),
-                        100. * batch_idx / len(self.train_loader.dataset), loss.data[0]))
+                        100. * batch_idx / len(self.train_loader.dataset), loss.item())         # loss.data[0]))
 
             self.test()
 
@@ -275,7 +256,9 @@ class ModuleTrain():
 
             output = self.model(data)
             # sum up batch loss
-            test_loss += self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+            loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+            # test_loss += loss.data[0]
+            test_loss += loss.item()
 
             if show_img:
                 for i in range(len(output[:, 1])):
