@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 import os
 import time
-import training_judging as tj
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D, Conv2D, BatchNormalization
@@ -104,9 +103,9 @@ class SignCarPoint:
 
 
 if __name__ == '__main__':
-    image_dir = "/cyl_data/car_plate"
-    label_file = "./label.txt"
-    index_file = "./i.txt"
+    image_dir = "/cyl_data/car_plate_test_1"
+    label_file = "./car_plate_test_1_label.txt"
+    index_file = "./car_plate_test_1_index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
     sign_point.sign_start()

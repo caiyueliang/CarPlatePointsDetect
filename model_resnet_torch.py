@@ -71,6 +71,14 @@ class ResNet(nn.Module):
         x = self.fc(x)
         return x
 
+    def load(self, name):
+        print('[Load model] %s...' % name)
+        self.load_state_dict(torch.load(name))
+
+    def save(self, name):
+        print('[Save model] %s ...' % name)
+        torch.save(self.state_dict(), name)
+
 from torchvision import models
 
 if __name__ == '__main__':

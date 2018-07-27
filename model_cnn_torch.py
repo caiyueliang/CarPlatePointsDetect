@@ -251,9 +251,9 @@ class ModuleTrain():
 
                 # update
                 if batch_idx == 0:
-                # if batch_idx % 10 == 0:
-                    print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i, batch_idx * len(data),
-                        len(self.train_loader.dataset), 100. * batch_idx / len(self.train_loader), loss.data[0]))
+                    print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i,
+                        batch_idx * len(data), len(self.train_loader.dataset),
+                        100. * batch_idx / len(self.train_loader.dataset), loss.data[0]))
 
             self.test()
 
@@ -285,12 +285,14 @@ class ModuleTrain():
         print('[Test] set: Average loss: {:.4f}\n'.format(test_loss))
 
     def load(self, name):
-        # self.model.load_state_dict(torch.load(name))
-        self.model.load(name)
+        print('[Load model] %s...' % name)
+        self.model.load_state_dict(torch.load(name))
+        # self.model.load(name)
 
     def save(self, name):
-        # torch.save(self.model.state_dict(), name)
-        self.model.save(name)
+        print('[Load model] %s...' % name)
+        torch.save(self.model.state_dict(), name)
+        # self.model.save(name)
 
     def show_img(self, img_file, output, target):
         print(img_file)
