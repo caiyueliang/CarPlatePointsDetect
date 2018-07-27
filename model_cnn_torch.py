@@ -240,7 +240,7 @@ class ModuleTrain():
                 if batch_idx == 0:
                     print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i,
                         batch_idx * len(data), len(self.train_loader.dataset),
-                        100. * batch_idx / len(self.train_loader.dataset), loss.item()))    # loss.data[0]))
+                        100. * batch_idx / len(self.train_loader.dataset), loss.item() / self.batch_size))
 
             self.test()
 
@@ -263,7 +263,6 @@ class ModuleTrain():
             output = self.model(data)
             # sum up batch loss
             loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
-            # test_loss += loss.data[0]
             test_loss += loss.item()
 
             if show_img:
