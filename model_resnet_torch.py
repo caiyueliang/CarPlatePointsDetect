@@ -25,9 +25,9 @@ class ResidualBlock(nn.Module):
         return F.relu(out)
 
 
-class ResNet(nn.Module):
+class ResNet18(nn.Module):
     def __init__(self, num_classes=8):
-        super(ResNet, self).__init__()
+        super(ResNet18, self).__init__()
         # 前几层图像转换
         self.pre = nn.Sequential(
             nn.Conv2d(3, 64, 7, 2, 3, bias=False),
@@ -82,7 +82,7 @@ class ResNet(nn.Module):
 from torchvision import models
 
 if __name__ == '__main__':
-    model = ResNet()
+    model = ResNet18()
     print model
     input = Variable(torch.randn(4, 3, 224, 224))
     print (input.size())
