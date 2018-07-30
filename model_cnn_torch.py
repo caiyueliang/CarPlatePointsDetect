@@ -152,13 +152,15 @@ class CNN(nn.Module):
 
 
 class ModuleTrain():
-    def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3, re_train=False):
+    def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3,
+                 re_train=False, best_loss = 0.3):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
         self.img_size = img_size
         self.batch_size = batch_size
-        self.re_train = re_train
+        self.re_train = re_train                        # 不加载训练模型，重新进行训练
+        self.best_loss = best_loss                      # 最好的损失值，小于这个值，才会保存模型
 
         if torch.cuda.is_available():
             self.use_gpu = True
@@ -207,13 +209,17 @@ class ModuleTrain():
         self.loss = F.mse_loss
         self.lr = lr
         # self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.5)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
         pass
 
-    def train(self, epoch):
+    def train(self, epoch, decay_epoch=40, save_best=True):
         print('[train] epoch: %d' % epoch)
         for epoch_i in range(epoch):
+
+            if epoch_i >= decay_epoch and epoch_i % decay_epoch == 0:                   # 减小学习速率
+                self.lr = self.lr * 0.1
+                self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
             print('================================================')
             for batch_idx, (data, target, _) in enumerate(self.train_loader):
@@ -238,11 +244,22 @@ class ModuleTrain():
 
                 # update
                 if batch_idx == 0:
-                    print('[Train] Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch_i,
-                        batch_idx * len(data), len(self.train_loader.dataset),
-                        100. * batch_idx / len(self.train_loader.dataset), loss.item() / self.batch_size))
+                    print('[Train] Epoch: {} [{}/{}]\tLoss: {:.6f}\tlr: {}'.format(epoch_i, batch_idx * len(data),
+                        len(self.train_loader.dataset), loss.item()/self.batch_size, self.lr))
 
-            self.test()
+            test_loss = self.test()
+            if save_best is True:
+                if self.best_loss > test_loss:
+                    self.best_loss = test_loss
+                    str_list = self.model_file.split('.')
+                    best_model_file = ""
+                    for str_index in range(len(str_list)):
+                        best_model_file = best_model_file + str_list[str_index]
+                        if str_index == (len(str_list) - 2):
+                            best_model_file += '_best'
+                        if str_index != (len(str_list) - 1):
+                            best_model_file += '.'
+                    self.save(best_model_file)                                  # 保存最好的模型
 
         self.save(self.model_file)
 
@@ -271,14 +288,15 @@ class ModuleTrain():
 
         test_loss /= len(self.test_loader.dataset)
         print('[Test] set: Average loss: {:.4f}\n'.format(test_loss))
+        return test_loss
 
     def load(self, name):
-        print('[Load model] %s...' % name)
+        print('[Load model] %s ...' % name)
         self.model.load_state_dict(torch.load(name))
         # self.model.load(name)
 
     def save(self, name):
-        print('[Load model] %s...' % name)
+        print('[Save model] %s ...' % name)
         torch.save(self.model.state_dict(), name)
         # self.model.save(name)
 
