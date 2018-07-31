@@ -206,7 +206,9 @@ class ModuleTrain():
         self.train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
-        self.loss = F.mse_loss
+        # self.loss = F.mse_loss
+        self.loss = F.smooth_l1_loss
+
         self.lr = lr
         # self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.5)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
