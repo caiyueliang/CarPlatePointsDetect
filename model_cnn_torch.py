@@ -281,7 +281,10 @@ class ModuleTrain():
 
             output = self.model(data)
             # sum up batch loss
-            loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
+            if self.use_gpu:
+                loss = self.loss(output, target.type(torch.cuda.FloatTensor))
+            else:
+                loss = self.loss(output, target.type(torch.FloatTensor))
             test_loss += loss.item()
 
             if show_img:
