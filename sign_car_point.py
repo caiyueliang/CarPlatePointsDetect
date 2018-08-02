@@ -39,6 +39,8 @@ class SignCarPoint:
                 print('self.car_points is too long, %s' % str(self.car_points))
 
     def sign_start(self, restart=False):
+        times = 4
+
         cv2.namedWindow('sign_image')
         cv2.setMouseCallback('sign_image', self.mouse_click_events)    # 鼠标事件绑定
 
@@ -57,6 +59,7 @@ class SignCarPoint:
             print('[total] %d; [index] %d; [name] %s' % (len(self.img_files), start_i, self.img_files[start_i]))
 
             self.img = cv2.imread(self.img_files[start_i])
+            self.img = cv2.resize(self.img, (self.img.shape[0]*times, self.img.shape[1]*times))
             cv2.imshow('sign_image', self.img)
 
             while True:
@@ -68,7 +71,7 @@ class SignCarPoint:
                     print('save ...')
                     data = self.img_files[start_i] + " " + str(len(self.car_points))
                     for (x, y) in self.car_points:
-                        data += ' ' + str(x) + ' ' + str(y)
+                        data += ' ' + str(x/float(times)) + ' ' + str(y/float(times))
                     data += '\n'
 
                     common.write_data(self.label_file, data, 'a+')
@@ -83,6 +86,7 @@ class SignCarPoint:
                     self.img_files.pop(start_i)
 
                     self.img = cv2.imread(self.img_files[start_i])
+                    self.img = cv2.resize(self.img, (self.img.shape[0] * times, self.img.shape[1] * times))
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
@@ -90,6 +94,7 @@ class SignCarPoint:
                 if k == ord('r'):
                     print('re sign ...')
                     self.img = cv2.imread(self.img_files[start_i])
+                    self.img = cv2.resize(self.img, (self.img.shape[0] * times, self.img.shape[1] * times))
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
