@@ -39,7 +39,7 @@ class SignCarPoint:
                 print('self.car_points is too long, %s' % str(self.car_points))
 
     def sign_start(self, restart=False):
-        times = 4
+        times = 2
 
         cv2.namedWindow('sign_image')
         cv2.setMouseCallback('sign_image', self.mouse_click_events)    # 鼠标事件绑定
@@ -98,6 +98,16 @@ class SignCarPoint:
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
+                if k == ord('c'):
+                    print('change size ...')
+                    if times == 2:
+                        times = 4
+                    else:
+                        times = 2
+                    self.img = cv2.imread(self.img_files[start_i])
+                    self.img = cv2.resize(self.img, (self.img.shape[0] * times, self.img.shape[1] * times))
+                    cv2.imshow('sign_image', self.img)
+                    self.car_points = []
 
 if __name__ == '__main__':
     # image_dir = "/cyl_data/car_plate_test_1"
