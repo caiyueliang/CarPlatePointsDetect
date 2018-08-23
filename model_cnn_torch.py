@@ -42,9 +42,10 @@ class MyDataset(data.Dataset):
         label = map(float, label)
         label = np.array(label)
 
-        # if self.is_train:                                               # 训练模式，才做变换
-        #     img, label = self.RandomHorizontalFlip(img, label)          # 图片做随机水平翻转
-        #     self.show_img(img, label)
+        if self.is_train:                                               # 训练模式，才做变换
+            # img, label = self.RandomHorizontalFlip(img, label)        # 图片做随机水平翻转
+            img, label = self.random_crop(img, label)
+            # self.show_img(img, label)
 
         label = label * self.img_size / old_size
         if self.transforms:
@@ -65,6 +66,61 @@ class MyDataset(data.Dataset):
 
         return img, label
 
+    # 随机裁剪
+    def random_crop(self, img, labels):
+        # print('random_crop', labels)
+        # mode = random.choice([None, 0.3, 0.5, 0.7, 0.9])
+        # random.randrange(int(0.3*short_size), short_size)
+        img_cv = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        # cv2.imshow('img_cv', img_cv)
+
+        imh, imw, _ = img_cv.shape
+        short_size = min(imw, imh)
+        # print(imh, imw, short_size)
+
+        left = min(labels[0], labels[4])
+        top = min(labels[1], labels[3])
+        right = max(labels[2], labels[6])
+        bottom = max(labels[5], labels[7])
+        # print('left, top, right, bottom', left, top, right, bottom)
+
+        x1 = 0
+        y1 = 0
+        x2 = imw
+        y2 = imh
+
+        if random.random() < 0.5:
+            rate = random.random()
+            x1 = int(left * rate)
+            labels[0] = labels[0] - int(left * rate)
+            labels[2] = labels[2] - int(left * rate)
+            labels[4] = labels[4] - int(left * rate)
+            labels[6] = labels[6] - int(left * rate)
+
+        if random.random() < 0.5:
+            rate = random.random()
+            y1 = int(top * rate)
+            labels[1] = labels[1] - int(top * rate)
+            labels[3] = labels[3] - int(top * rate)
+            labels[5] = labels[5] - int(top * rate)
+            labels[7] = labels[7] - int(top * rate)
+
+        if random.random() < 0.5:
+            rate = random.random()
+            x2 = imw - int((imw - right) * rate)
+
+        if random.random() < 0.5:
+            rate = random.random()
+            y2 = imh - int((imh - bottom) * rate)
+
+        # print('x1, y1, x2, y2', x1, y1, x2, y2)
+        img_cv = img_cv[y1:y2, x1:x2]
+        # cv2.imshow('crop_img_cv', img_cv)
+        # cv2.waitKey(0)
+
+        img = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+        return img, labels
+
     def show_img(self, img, output):
         img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
         for i in range(len(output)/2):
@@ -72,6 +128,7 @@ class MyDataset(data.Dataset):
 
         cv2.imshow('show_img', img)
         cv2.waitKey(0)
+
 
 # 自定义Loss
 class MyLoss(nn.Module):
@@ -151,7 +208,7 @@ class CNN(nn.Module):
         torch.save(self.state_dict(), name)
 
 
-class ModuleTrain():
+class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3,
                  re_train=False, best_loss = 0.3):
         self.train_path = train_path
@@ -186,13 +243,13 @@ class ModuleTrain():
 
         # RandomHorizontalFlip
         self.transform_train = T.Compose([
-            T.Resize(self.img_size),
+            T.Resize((self.img_size, self.img_size)),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5]),
         ])
 
         self.transform_test = T.Compose([
-            T.Resize(self.img_size),
+            T.Resize((self.img_size, self.img_size)),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
         ])
@@ -318,7 +375,7 @@ class ModuleTrain():
         for i in range(len(output)/2):
             cv2.circle(img, (int(output[2*i]*h/self.img_size), int(output[2*i+1]*h/self.img_size)), 3, (0, 0, 255), -1)
 
-        cv2.imshow('show_img', img)
+        cv2.imshow('show_img_1', img)
         cv2.waitKey(0)
 
 
