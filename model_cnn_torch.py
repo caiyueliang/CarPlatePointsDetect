@@ -44,7 +44,7 @@ class MyDataset(data.Dataset):
 
         if self.is_train:                                               # 训练模式，才做变换
             # img, label = self.RandomHorizontalFlip(img, label)        # 图片做随机水平翻转
-            img, label = self.random_crop(img, label)
+            img, label = self.random_crop(img, label)                   # 图片做随机裁剪
             # self.show_img(img, label)
 
         label = label * self.img_size / old_size
