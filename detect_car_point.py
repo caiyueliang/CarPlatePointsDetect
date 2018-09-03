@@ -22,5 +22,5 @@ if __name__ == '__main__':
     # model = models.resnet50(num_classes=8)
     # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=16, img_size=224, lr=1e-3)
 
-    model_train.train(300, 80)
+    model_train.train(300, 120)
     model_train.test(show_img=True)

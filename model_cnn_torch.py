@@ -36,7 +36,6 @@ class MyDataset(data.Dataset):
         img_file = os.path.join(self.root_dir, str_list[0])
 
         img = Image.open(img_file)
-        old_size = img.size[0]
 
         label = str_list[2:]
         label = map(float, label)
@@ -47,6 +46,7 @@ class MyDataset(data.Dataset):
             img, label = self.random_crop(img, label)                   # 图片做随机裁剪
             # self.show_img(img, label)
 
+        old_size = img.size[0]
         label = label * self.img_size / old_size
         if self.transforms:
             img = self.transforms(img)
@@ -75,14 +75,19 @@ class MyDataset(data.Dataset):
         # cv2.imshow('img_cv', img_cv)
 
         imh, imw, _ = img_cv.shape
-        short_size = min(imw, imh)
+        # short_size = min(imw, imh)
         # print(imh, imw, short_size)
 
         left = min(labels[0], labels[4])
         top = min(labels[1], labels[3])
-        right = max(labels[2], labels[6])
-        bottom = max(labels[5], labels[7])
+        min_left = min(left, top)
+
+        right = min(imw-labels[2], imw-labels[6])
+        bottom = min(imh-labels[5], imh-labels[7])
+        min_right = min(right, bottom)
+
         # print('left, top, right, bottom', left, top, right, bottom)
+        # print('min_left, min_right', min_left, min_right)
 
         x1 = 0
         y1 = 0
@@ -91,27 +96,24 @@ class MyDataset(data.Dataset):
 
         if random.random() < 0.5:
             rate = random.random()
-            x1 = int(left * rate)
-            labels[0] = labels[0] - int(left * rate)
-            labels[2] = labels[2] - int(left * rate)
-            labels[4] = labels[4] - int(left * rate)
-            labels[6] = labels[6] - int(left * rate)
+            crop = int(min_left * rate)
+            x1 = crop
+            labels[0] = labels[0] - crop
+            labels[2] = labels[2] - crop
+            labels[4] = labels[4] - crop
+            labels[6] = labels[6] - crop
+
+            y1 = crop
+            labels[1] = labels[1] - crop
+            labels[3] = labels[3] - crop
+            labels[5] = labels[5] - crop
+            labels[7] = labels[7] - crop
 
         if random.random() < 0.5:
             rate = random.random()
-            y1 = int(top * rate)
-            labels[1] = labels[1] - int(top * rate)
-            labels[3] = labels[3] - int(top * rate)
-            labels[5] = labels[5] - int(top * rate)
-            labels[7] = labels[7] - int(top * rate)
-
-        if random.random() < 0.5:
-            rate = random.random()
-            x2 = imw - int((imw - right) * rate)
-
-        if random.random() < 0.5:
-            rate = random.random()
-            y2 = imh - int((imh - bottom) * rate)
+            crop = int(min_right * rate)
+            x2 = imw - crop
+            y2 = imh - crop
 
         # print('x1, y1, x2, y2', x1, y1, x2, y2)
         img_cv = img_cv[y1:y2, x1:x2]
