@@ -81,7 +81,7 @@ class SignCarPoint:
                     break
 
                 if k == ord('d'):
-                    print('save ...')
+                    print('delete ...')
                     common.exe_cmd('rm -r ' + self.img_files[start_i])
                     self.img_files.pop(start_i)
 
@@ -114,9 +114,9 @@ if __name__ == '__main__':
     # label_file = "./car_plate_test_1_label.txt"
     # index_file = "./car_plate_test_1_index.txt"
 
-    image_dir = "/cyl_data/car_plate_train"
-    label_file = "./car_plate_train_label.txt"
-    index_file = "./car_plate_train_index.txt"
+    image_dir = "../Data/car_finemap_detect/car_plate_train/data_2"
+    label_file = "./label.txt"
+    index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
     sign_point.sign_start()
