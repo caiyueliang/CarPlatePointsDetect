@@ -109,13 +109,15 @@ class SignCarPoint:
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
+
 if __name__ == '__main__':
     # image_dir = "/cyl_data/car_plate_test_1"
     # label_file = "./car_plate_test_1_label.txt"
     # index_file = "./car_plate_test_1_index.txt"
 
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_2"
-    image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
+    # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
+    image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
     label_file = "./label.txt"
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
