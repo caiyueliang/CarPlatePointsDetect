@@ -72,12 +72,15 @@ class FilterImage:
                 k = cv2.waitKey(1) & 0xFF
                 if k == ord('y'):
                     print('copy image ...')
-                    shutil.move(self.img_files_2[start_i], self.output_dir)
+                    # shutil.move(self.img_files_2[start_i], self.output_dir)
+                    shutil.copy(self.img_files_2[start_i], self.output_dir)
                     start_i += 1
+                    common.write_data(self.index_file, str(start_i), 'w')
                     break
 
                 if k == ord('n'):
                     start_i += 1
+                    common.write_data(self.index_file, str(start_i), 'w')
                     break
 
     # def sign_start(self, restart=False):
