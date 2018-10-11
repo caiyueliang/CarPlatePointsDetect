@@ -28,6 +28,8 @@ class FilterImage:
         self.image_dir_2 = image_dir_2
         self.img_files_2 = common.get_files(image_dir_2)
 
+        print(len(self.img_files_1), len(self.img_files_2))
+
         self.output_dir = output_dir
         self.index_file = index_file
         return
@@ -151,9 +153,9 @@ class FilterImage:
 
 
 if __name__ == '__main__':
-    image_dir_1 = "../Data/car_finemap_detect/car_plate_test/szlg_1"
-    image_dir_2 = "../Data/car_finemap_detect/car_plate_test/szlg_1"
-    output_dir = ""
+    image_dir_1 = "../capture_image/province_sign/failed_recognize_routh/"
+    image_dir_2 = "../capture_image/province_nosign/failed_recognize_routh/"
+    output_dir = "./Data/"
 
     index_file = "./index.txt"
     filter_img = FilterImage(image_dir_1, image_dir_2, output_dir, index_file)
