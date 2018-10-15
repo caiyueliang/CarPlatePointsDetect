@@ -111,14 +111,12 @@ class SignCarPoint:
 
 
 if __name__ == '__main__':
-    # image_dir = "/cyl_data/car_plate_test_1"
-    # label_file = "./car_plate_test_1_label.txt"
-    # index_file = "./car_plate_test_1_index.txt"
+    image_dir = "../Data/car_finemap_detect/car_plate_test/failed_1"
 
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_2"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
-    image_dir = "../Data/car_finemap_detect/car_plate_test/szlg_1"
+    # image_dir = "../Data/car_finemap_detect/car_plate_train/failed_1"
 
     label_file = "./label.txt"
     index_file = "./index.txt"

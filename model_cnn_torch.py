@@ -366,9 +366,9 @@ class ModuleTrain:
         # self.model.save(name)
 
     def show_img(self, img_file, output, target):
-        print(img_file)
-        print(output)
-        print(target)
+        # print(img_file)
+        # print(output)
+        # print(target)
 
         img = cv2.imread(img_file)
         h, w, c = img.shape
