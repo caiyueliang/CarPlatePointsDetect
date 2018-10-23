@@ -127,8 +127,17 @@ class SignCarPoint:
                 # cv2.circle(self.img, (int((float(list_str[2])*times), int(float(list_str[3])*times))), 3, (0, 0, 255), -1)
 
                 cv2.circle(self.img, (int(float(list_str[2])*times), int(float(list_str[3])*times)), 3, (0, 0, 255), -1)
+                cv2.line(self.img, (int(float(list_str[2])*times), int(float(list_str[3])*times)),
+                         (int(float(list_str[4]) * times), int(float(list_str[5]) * times)), (0, 0, 255), 3, -1)
+
                 cv2.circle(self.img, (int(float(list_str[4])*times), int(float(list_str[5])*times)), 3, (0, 255, 255), -1)
+                cv2.line(self.img, (int(float(list_str[4])*times), int(float(list_str[5])*times)),
+                         (int(float(list_str[6]) * times), int(float(list_str[7]) * times)), (0, 255, 255), 3, -1)
+
                 cv2.circle(self.img, (int(float(list_str[6])*times), int(float(list_str[7])*times)), 3, (255, 0, 0), -1)
+                cv2.line(self.img, (int(float(list_str[6])*times), int(float(list_str[7])*times)),
+                         (int(float(list_str[8]) * times), int(float(list_str[9]) * times)), (255, 0, 0), 3, -1)
+
                 cv2.circle(self.img, (int(float(list_str[8])*times), int(float(list_str[9])*times)), 3, (0, 255, 0), -1)
 
                 cv2.imshow('check_image', self.img)
