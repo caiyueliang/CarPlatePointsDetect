@@ -157,6 +157,6 @@ if __name__ == '__main__':
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
-    # sign_point.sign_start()
+    sign_point.sign_start()
 
-    sign_point.check_start()
+    # sign_point.check_start()
