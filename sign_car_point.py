@@ -123,10 +123,13 @@ class SignCarPoint:
                 if int(list_str[1]) != 4:
                     print('[ERROR] ' + list_str[0] + ' points not 4 !!')
 
-                cv2.circle(self.img, (int(list_str[2]), int(list_str[3])), 3, (0, 0, 255), -1)
-                cv2.circle(self.img, (int(list_str[4]), int(list_str[5])), 3, (255, 255, 0), -1)
-                cv2.circle(self.img, (int(list_str[6]), int(list_str[7])), 3, (255, 0, 0), -1)
-                cv2.circle(self.img, (int(list_str[8]), int(list_str[9])), 3, (0, 255, 0), -1)
+                # cv2.circle(self.img, (x, y), 3, (0, 0, 255), -1)
+                # cv2.circle(self.img, (int((float(list_str[2])*times), int(float(list_str[3])*times))), 3, (0, 0, 255), -1)
+
+                cv2.circle(self.img, (int(float(list_str[2])*times), int(float(list_str[3])*times)), 3, (0, 0, 255), -1)
+                cv2.circle(self.img, (int(float(list_str[4])*times), int(float(list_str[5])*times)), 3, (0, 255, 255), -1)
+                cv2.circle(self.img, (int(float(list_str[6])*times), int(float(list_str[7])*times)), 3, (255, 0, 0), -1)
+                cv2.circle(self.img, (int(float(list_str[8])*times), int(float(list_str[9])*times)), 3, (0, 255, 0), -1)
 
                 cv2.imshow('check_image', self.img)
                 cv2.waitKey(0)
