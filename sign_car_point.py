@@ -60,7 +60,6 @@ class SignCarPoint:
 
             self.img = cv2.imread(self.img_files[start_i])
             self.img = cv2.resize(self.img, (self.img.shape[0]*times, self.img.shape[1]*times))
-            cv2.imshow('sign_image', self.img)
 
             while True:
                 cv2.imshow('sign_image', self.img)
@@ -109,17 +108,43 @@ class SignCarPoint:
                     cv2.imshow('sign_image', self.img)
                     self.car_points = []
 
+    def check_start(self):
+        times = 2
+
+        with open(self.label_file) as f:
+            for line in f.readlines():
+                line = line.replace('\r', '').replace('\n', '')
+                print(line)
+                list_str = line.split(' ')
+
+                self.img = cv2.imread(list_str[0])
+                self.img = cv2.resize(self.img, (self.img.shape[0] * times, self.img.shape[1] * times))
+
+                if int(list_str[1]) != 4:
+                    print('[ERROR] ' + list_str[0] + ' points not 4 !!')
+
+                cv2.circle(self.img, (int(list_str[2]), int(list_str[3])), 3, (0, 0, 255), -1)
+                cv2.circle(self.img, (int(list_str[4]), int(list_str[5])), 3, (255, 255, 0), -1)
+                cv2.circle(self.img, (int(list_str[6]), int(list_str[7])), 3, (255, 0, 0), -1)
+                cv2.circle(self.img, (int(list_str[8]), int(list_str[9])), 3, (0, 255, 0), -1)
+
+                cv2.imshow('check_image', self.img)
+                cv2.waitKey(0)
+
 
 if __name__ == '__main__':
-    image_dir = "../Data/car_finemap_detect/car_plate_test/failed_1"
+    # image_dir = "../Data/car_finemap_detect/car_plate_test/failed_1"
 
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_2"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/failed_1"
+    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_4"
 
     label_file = "./label.txt"
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
-    sign_point.sign_start()
+    # sign_point.sign_start()
+
+    sign_point.check_start()
