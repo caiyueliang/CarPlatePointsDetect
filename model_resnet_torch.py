@@ -79,6 +79,7 @@ class ResNet18(nn.Module):
         print('[Save model] %s ...' % name)
         torch.save(self.state_dict(), name)
 
+
 from torchvision import models
 
 if __name__ == '__main__':
