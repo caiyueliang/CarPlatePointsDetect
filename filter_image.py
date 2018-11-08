@@ -60,7 +60,10 @@ class FilterImage:
         while start_i < len(self.img_files_1):
             print('[total] %d; [index] %d; [name] %s' % (len(self.img_files_1), start_i, self.img_files_1[start_i]))
 
-            img_1 = cv2.imread(self.img_files_1[start_i])
+            path_1, file_1 = os.path.split(self.img_files_1[start_i])
+            path_2, file_2 =os.path.split(self.img_files_2[start_i])
+
+            img_1 = cv2.imread(os.path.join(path_1, file_2))
             img_1 = cv2.resize(img_1, (img_1.shape[0]*times, img_1.shape[1]*times))
             cv2.imshow('image_1', img_1)
 
@@ -156,8 +159,8 @@ class FilterImage:
 
 
 if __name__ == '__main__':
-    image_dir_1 = "../capture_image/province_sign/failed_recognize_routh/"
-    image_dir_2 = "../capture_image/province_nosign/failed_recognize_routh/"
+    image_dir_1 = "../capture_image/resize_991779_sign/failed_recognize_routh/"
+    image_dir_2 = "../capture_image/resize_991779_no/failed_recognize_routh/"
     output_dir = "./Data/"
 
     index_file = "./index.txt"
