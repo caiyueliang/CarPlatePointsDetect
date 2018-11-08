@@ -18,6 +18,9 @@ import common as common
 # def mouse_click_events(event, x, y, flags, param):
 #     if event == cv2.EVENT_LBUTTONDBLCLK:
 #         cv2.circle(img, (x, y), 100, (255, 0, 0), -1)
+def mkdir_if_not_exist(path):
+    if not os.path.exists(os.path.join(path)):
+        os.makedirs(os.path.join(path))
 
 
 class SignCarPoint:
@@ -143,6 +146,81 @@ class SignCarPoint:
                 cv2.imshow('check_image', self.img)
                 cv2.waitKey(0)
 
+    def change_size(self, root_path, label_file, output_path):
+        times = 1
+        ratio = 0.2
+
+        with open(label_file) as f:
+            for line in f.readlines():
+                line = line.replace('\r', '').replace('\n', '')
+                print(line)
+                list_str = line.split(' ')
+
+                image_path = os.path.join(root_path, list_str[0])
+                print(image_path)
+
+                img = cv2.imread(image_path)
+                h, w, c = img.shape
+                print(h, w, c)
+                # img = cv2.resize(img, (img.shape[0] * times, img.shape[1] * times))
+
+                padding_h = int(h * ratio)
+                # image[padding:resize_h-padding, 0:image.shape[1]]
+                new_img = img[padding_h:h-padding_h, 0:w].copy()
+
+                if int(list_str[1]) != 4:
+                    print('[ERROR] ' + list_str[0] + ' points not 4 !!')
+
+                cv2.circle(img, (int(float(list_str[2])*times), int(float(list_str[3]))*times), 3, (0, 0, 255), -1)
+                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (255, 255, 0), -1)
+                cv2.circle(img, (int(float(list_str[6])*times), int(float(list_str[7]))*times), 3, (255, 0, 0), -1)
+                cv2.circle(img, (int(float(list_str[8])*times), int(float(list_str[9]))*times), 3, (0, 255, 0), -1)
+                cv2.imshow('check_image', img)
+
+                point_list = list()
+                for i in range(2, 10):
+                    if i % 2 != 0:
+                        point_list.append(float('%.2f' % ((float(list_str[i])-padding_h)*h/new_img.shape[0])))
+                    else:
+                        point_list.append(float(list_str[i]))
+
+                print(point_list)
+                new_img = cv2.resize(new_img, (h, w))
+
+                my_img = new_img.copy()
+                cv2.circle(my_img, (int(float(point_list[0]) * times), int(float(point_list[1])) * times), 3, (0, 0, 255), -1)
+                cv2.circle(my_img, (int(float(point_list[2]) * times), int(float(point_list[3])) * times), 3, (255, 255, 0), -1)
+                cv2.circle(my_img, (int(float(point_list[4]) * times), int(float(point_list[5])) * times), 3, (255, 0, 0), -1)
+                cv2.circle(my_img, (int(float(point_list[6]) * times), int(float(point_list[7])) * times), 3, (0, 255, 0), -1)
+                cv2.imshow('new_image', my_img)
+
+                while True:
+                    # 保存这张图片
+                    k = cv2.waitKey(1) & 0xFF
+                    if k == ord('y'):
+                        save_path = os.path.join(output_path, list_str[0])
+                        print(save_path)
+                        (file_path, tempfilename) = os.path.split(save_path)
+                        print(file_path)
+                        mkdir_if_not_exist(file_path)
+
+                        cv2.imwrite(save_path, new_img)
+
+                        data = list_str[0] + " " + str(len(point_list)/2)
+                        for point in point_list:
+                            data += ' ' + str(point)
+                        data += '\n'
+
+                        common.write_data(os.path.join(output_path, 'label.txt'), data, 'a+')
+
+                        break
+                    if k == ord('n'):
+                        break
+
+                print("====================================================================")
+
+        return
+
 
 if __name__ == '__main__':
     # image_dir = "../Data/car_finemap_detect/car_plate_test/failed_1"
@@ -157,6 +235,14 @@ if __name__ == '__main__':
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
-    sign_point.sign_start()
+    # sign_point.sign_start()
 
     # sign_point.check_start()
+
+    # sign_point.change_size('../Data/car_finemap_detect/car_plate_train/',
+    #                        '../Data/car_finemap_detect/car_plate_train/label.txt',
+    #                        '../Data/car_finemap_detect_new/car_plate_train/')
+
+    sign_point.change_size('../Data/car_finemap_detect/car_plate_test/',
+                           '../Data/car_finemap_detect/car_plate_test/label.txt',
+                           '../Data/car_finemap_detect_new/car_plate_test/')
