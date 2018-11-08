@@ -4,6 +4,7 @@ import os
 import time
 import shutil
 import common as common
+import traceback
 
 # ['EVENT_FLAG_ALTKEY', 'EVENT_FLAG_CTRLKEY', 'EVENT_FLAG_LBUTTON', 'EVENT_FLAG_MBUTTON', 'EVENT_FLAG_RBUTTON',
 # 'EVENT_FLAG_SHIFTKEY', 'EVENT_LBUTTONDBLCLK', 'EVENT_LBUTTONDOWN', 'EVENT_LBUTTONUP', 'EVENT_MBUTTONDBLCLK',
@@ -58,33 +59,38 @@ class FilterImage:
             start_i = 0
 
         while start_i < len(self.img_files_1):
-            print('[total] %d; [index] %d; [name] %s' % (len(self.img_files_1), start_i, self.img_files_1[start_i]))
+            try:
+                print('[total] %d; [index] %d; [name] %s' % (len(self.img_files_1), start_i, self.img_files_1[start_i]))
 
-            path_1, file_1 = os.path.split(self.img_files_1[start_i])
-            path_2, file_2 =os.path.split(self.img_files_2[start_i])
+                path_1, file_1 = os.path.split(self.img_files_1[start_i])
+                path_2, file_2 =os.path.split(self.img_files_2[start_i])
 
-            img_1 = cv2.imread(os.path.join(path_1, file_2))
-            img_1 = cv2.resize(img_1, (img_1.shape[0]*times, img_1.shape[1]*times))
-            cv2.imshow('image_1', img_1)
+                img_1 = cv2.imread(os.path.join(path_1, file_2))
+                img_1 = cv2.resize(img_1, (img_1.shape[0]*times, img_1.shape[1]*times))
+                cv2.imshow('image_1', img_1)
 
-            img_2 = cv2.imread(self.img_files_2[start_i])
-            img_2 = cv2.resize(img_2, (img_2.shape[0]*times, img_2.shape[1]*times))
-            cv2.imshow('image_2', img_2)
+                img_2 = cv2.imread(self.img_files_2[start_i])
+                img_2 = cv2.resize(img_2, (img_2.shape[0]*times, img_2.shape[1]*times))
+                cv2.imshow('image_2', img_2)
 
-            while True:
-                k = cv2.waitKey(1) & 0xFF
-                if k == ord('y'):
-                    print('copy image ...')
-                    # shutil.move(self.img_files_2[start_i], self.output_dir)
-                    shutil.copy(self.img_files_2[start_i], self.output_dir)
-                    start_i += 1
-                    common.write_data(self.index_file, str(start_i), 'w')
-                    break
+                while True:
+                    k = cv2.waitKey(1) & 0xFF
+                    if k == ord('y'):
+                        print('copy image ...')
+                        # shutil.move(self.img_files_2[start_i], self.output_dir)
+                        shutil.copy(self.img_files_2[start_i], self.output_dir)
+                        start_i += 1
+                        common.write_data(self.index_file, str(start_i), 'w')
+                        break
 
-                if k == ord('n'):
-                    start_i += 1
-                    common.write_data(self.index_file, str(start_i), 'w')
-                    break
+                    if k == ord('n'):
+                        start_i += 1
+                        common.write_data(self.index_file, str(start_i), 'w')
+                        break
+            except Exception, e:
+                start_i += 1
+                msg = traceback.format_exc()
+                print (msg)
 
     # def sign_start(self, restart=False):
     #     times = 2
