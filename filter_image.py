@@ -165,8 +165,18 @@ class FilterImage:
 
 
 if __name__ == '__main__':
-    image_dir_1 = "../capture_image/resize_991779_sign/failed_recognize_routh/"
-    image_dir_2 = "../capture_image/resize_991779_no/failed_recognize_routh/"
+    # image_dir_1 = "../capture_image/resize_991779_sign/failed_recognize_routh/"
+    # image_dir_2 = "../capture_image/resize_991779_no/failed_recognize_routh/"
+
+    # image_dir_1 = "../capture_image/resize_991779_sign/failed_detect_routh/"
+    # image_dir_2 = "../capture_image/resize_991779_no/failed_detect_routh/"
+
+    # image_dir_1 = "../capture_image/resize_994562_sign/failed_recognize_routh/"
+    # image_dir_2 = "../capture_image/resize_994610_no/failed_recognize_routh/"
+
+    image_dir_1 = "../capture_image/resize_994562_sign/failed_detect_routh/"
+    image_dir_2 = "../capture_image/resize_994610_no/failed_detect_routh/"
+
     output_dir = "./Data/"
 
     index_file = "./index.txt"
