@@ -2,7 +2,7 @@
 import cv2
 import os
 import time
-
+import shutil
 import common as common
 
 # ['EVENT_FLAG_ALTKEY', 'EVENT_FLAG_CTRLKEY', 'EVENT_FLAG_LBUTTON', 'EVENT_FLAG_MBUTTON', 'EVENT_FLAG_RBUTTON',
@@ -146,6 +146,53 @@ class SignCarPoint:
                 cv2.imshow('check_image', self.img)
                 cv2.waitKey(0)
 
+    def clean(self, root_path, label_file, output_path):
+        times = 1
+
+        with open(label_file) as f:
+            for line in f.readlines():
+                line = line.replace('\r', '').replace('\n', '')
+                print(line)
+                list_str = line.split(' ')
+
+                image_path = os.path.join(root_path, list_str[0])
+                print(image_path)
+
+                img = cv2.imread(image_path)
+                h, w, c = img.shape
+                print(h, w, c)
+
+                if int(list_str[1]) != 4:
+                    print('[ERROR] ' + list_str[0] + ' points not 4 !!')
+
+                cv2.circle(img, (int(float(list_str[2])*times), int(float(list_str[3]))*times), 3, (0, 0, 255), -1)
+                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (255, 255, 0), -1)
+                cv2.circle(img, (int(float(list_str[6])*times), int(float(list_str[7]))*times), 3, (255, 0, 0), -1)
+                cv2.circle(img, (int(float(list_str[8])*times), int(float(list_str[9]))*times), 3, (0, 255, 0), -1)
+                cv2.imshow('check_image', img)
+
+                while True:
+                    # 保存这张图片
+                    k = cv2.waitKey(1) & 0xFF
+                    if k == ord('y'):
+                        save_path = os.path.join(output_path, list_str[0])
+                        print(save_path)
+                        (file_path, tempfilename) = os.path.split(save_path)
+                        print(file_path)
+                        mkdir_if_not_exist(file_path)
+
+                        shutil.copy(image_path, save_path)
+
+                        common.write_data(os.path.join(output_path, 'label.txt'), line + '\n', 'a+')
+
+                        break
+                    if k == ord('n'):
+                        break
+
+                print("====================================================================")
+
+        return
+
     def change_size(self, root_path, label_file, output_path):
         times = 1
         ratio = 0.2
@@ -229,20 +276,20 @@ if __name__ == '__main__':
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/failed_1"
-    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_4"
+    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_5"
 
     label_file = "./label.txt"
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
     # sign_point.sign_start()
-
+    #
     # sign_point.check_start()
 
-    # sign_point.change_size('../Data/car_finemap_detect/car_plate_train/',
-    #                        '../Data/car_finemap_detect/car_plate_train/label.txt',
-    #                        '../Data/car_finemap_detect_new/car_plate_train/')
+    sign_point.clean('../Data/car_finemap_detect/car_plate_train/',
+                           '../Data/car_finemap_detect/car_plate_train/label.txt',
+                           '../Data/car_finemap_detect_new/car_plate_train/')
 
-    sign_point.change_size('../Data/car_finemap_detect/car_plate_test/',
-                           '../Data/car_finemap_detect/car_plate_test/label.txt',
-                           '../Data/car_finemap_detect_new/car_plate_test/')
+    # sign_point.clean('../Data/car_finemap_detect/car_plate_test/',
+    #                        '../Data/car_finemap_detect/car_plate_test/label.txt',
+    #                        '../Data/car_finemap_detect_new/car_plate_test/')

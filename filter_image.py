@@ -60,7 +60,7 @@ class FilterImage:
 
         while start_i < len(self.img_files_1):
             try:
-                print('[total] %d; [index] %d; [name] %s' % (len(self.img_files_1), start_i, self.img_files_1[start_i]))
+                print('[total] %d; [index] %d; [name] %s' % (len(self.img_files_2), start_i, self.img_files_2[start_i]))
 
                 path_1, file_1 = os.path.split(self.img_files_1[start_i])
                 path_2, file_2 =os.path.split(self.img_files_2[start_i])
@@ -171,11 +171,11 @@ if __name__ == '__main__':
     # image_dir_1 = "../capture_image/resize_991779_sign/failed_detect_routh/"
     # image_dir_2 = "../capture_image/resize_991779_no/failed_detect_routh/"
 
-    # image_dir_1 = "../capture_image/resize_994562_sign/failed_recognize_routh/"
-    # image_dir_2 = "../capture_image/resize_994610_no/failed_recognize_routh/"
+    image_dir_1 = "../capture_image/more_994555/failed_recognize_routh/"
+    image_dir_2 = "../capture_image/more_994662/failed_recognize_routh/"
 
-    image_dir_1 = "../capture_image/resize_994562_sign/failed_detect_routh/"
-    image_dir_2 = "../capture_image/resize_994610_no/failed_detect_routh/"
+    # image_dir_1 = "../capture_image/more_994555/failed_detect_routh/"
+    # image_dir_2 = "../capture_image/more_994662/failed_detect_routh/"
 
     output_dir = "./Data/"
 
