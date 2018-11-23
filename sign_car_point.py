@@ -166,7 +166,7 @@ class SignCarPoint:
                     print('[ERROR] ' + list_str[0] + ' points not 4 !!')
 
                 cv2.circle(img, (int(float(list_str[2])*times), int(float(list_str[3]))*times), 3, (0, 0, 255), -1)
-                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (255, 255, 0), -1)
+                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (0, 255, 255), -1)
                 cv2.circle(img, (int(float(list_str[6])*times), int(float(list_str[7]))*times), 3, (255, 0, 0), -1)
                 cv2.circle(img, (int(float(list_str[8])*times), int(float(list_str[9]))*times), 3, (0, 255, 0), -1)
                 cv2.imshow('check_image', img)
@@ -219,7 +219,7 @@ class SignCarPoint:
                     print('[ERROR] ' + list_str[0] + ' points not 4 !!')
 
                 cv2.circle(img, (int(float(list_str[2])*times), int(float(list_str[3]))*times), 3, (0, 0, 255), -1)
-                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (255, 255, 0), -1)
+                cv2.circle(img, (int(float(list_str[4])*times), int(float(list_str[5]))*times), 3, (0, 255, 255), -1)
                 cv2.circle(img, (int(float(list_str[6])*times), int(float(list_str[7]))*times), 3, (255, 0, 0), -1)
                 cv2.circle(img, (int(float(list_str[8])*times), int(float(list_str[9]))*times), 3, (0, 255, 0), -1)
                 cv2.imshow('check_image', img)
@@ -236,7 +236,7 @@ class SignCarPoint:
 
                 my_img = new_img.copy()
                 cv2.circle(my_img, (int(float(point_list[0]) * times), int(float(point_list[1])) * times), 3, (0, 0, 255), -1)
-                cv2.circle(my_img, (int(float(point_list[2]) * times), int(float(point_list[3])) * times), 3, (255, 255, 0), -1)
+                cv2.circle(my_img, (int(float(point_list[2]) * times), int(float(point_list[3])) * times), 3, (0, 255, 255), -1)
                 cv2.circle(my_img, (int(float(point_list[4]) * times), int(float(point_list[5])) * times), 3, (255, 0, 0), -1)
                 cv2.circle(my_img, (int(float(point_list[6]) * times), int(float(point_list[7])) * times), 3, (0, 255, 0), -1)
                 cv2.imshow('new_image', my_img)
@@ -282,13 +282,13 @@ if __name__ == '__main__':
     index_file = "./index.txt"
     sign_point = SignCarPoint(image_dir, label_file, index_file)
 
-    # sign_point.sign_start()
-    #
-    # sign_point.check_start()
+    sign_point.sign_start()
 
-    sign_point.clean('../Data/car_finemap_detect/car_plate_train/',
-                           '../Data/car_finemap_detect/car_plate_train/label.txt',
-                           '../Data/car_finemap_detect_new/car_plate_train/')
+    sign_point.check_start()
+
+    # sign_point.clean('../Data/car_finemap_detect/car_plate_train/',
+    #                        '../Data/car_finemap_detect/car_plate_train/label.txt',
+    #                        '../Data/car_finemap_detect_new/car_plate_train/')
 
     # sign_point.clean('../Data/car_finemap_detect/car_plate_test/',
     #                        '../Data/car_finemap_detect/car_plate_test/label.txt',

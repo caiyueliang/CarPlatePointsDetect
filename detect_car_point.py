@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     FILE_PATH = './Model/resnet18_params.pkl'
     model = models.resnet18(num_classes=8)
-    model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=16, img_size=224, lr=1e-3)
+    model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=32, img_size=224, lr=1e-3)
 
     model_train.train(200, 60)
-    model_train.test(show_img=True)
+    # model_train.test(show_img=True)
