@@ -1,6 +1,7 @@
 # coding=utf-8
 import model_cnn_torch
 import model_resnet_torch
+import model_resnet_squeeze
 from torchvision import models
 
 if __name__ == '__main__':
@@ -20,10 +21,13 @@ if __name__ == '__main__':
     # model = models.resnet18(num_classes=8)
     # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=32, img_size=224, lr=1e-3)
 
-    FILE_PATH = './Model/Squeezenet1_1.pkl'
-    model = models.squeezenet1_1(num_classes=8)
-    model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=200,
-                                              img_size=224, lr=1e-1)
+    # FILE_PATH = './Model/Squeezenet1_1.pkl'
+    # model = models.squeezenet1_1(num_classes=8)
+    # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=200, img_size=224, lr=1e-2)
 
-    model_train.train(300, 60)
+    FILE_PATH = './Model/resnet18_params_sq.pkl'
+    model = model_resnet_squeeze.resnet18(num_classes=8)
+    model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=16, img_size=224, lr=1e-2)
+
+    model_train.train(260, 60)
     # model_train.test(show_img=True)

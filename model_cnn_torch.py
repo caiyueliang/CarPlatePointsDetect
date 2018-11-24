@@ -222,6 +222,7 @@ class ModuleTrain:
         self.re_train = re_train                        # 不加载训练模型，重新进行训练
         self.best_loss = best_loss                      # 最好的损失值，小于这个值，才会保存模型
 
+        print("gpu available: %s" % str(torch.cuda.is_available()))
         if torch.cuda.is_available():
             self.use_gpu = True
         else:
