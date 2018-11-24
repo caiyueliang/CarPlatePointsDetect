@@ -8,8 +8,7 @@ from torch.autograd import Variable
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 class Fire(nn.Module):
@@ -31,6 +30,29 @@ class Fire(nn.Module):
         ], 1)
         # print x.shape
         return x
+
+
+# class Fire(nn.Module):
+#     def __init__(self, inplanes, squeeze_planes, expand1x1_planes, expand3x3_planes, stride=1):
+#         super(Fire, self).__init__()
+#         self.inplanes = inplanes
+#         self.squeeze = nn.Conv2d(inplanes, squeeze_planes, kernel_size=1)
+#         self.squeeze_activation = nn.ReLU(inplace=True)
+#         self.expand1x1 = nn.Conv2d(squeeze_planes, expand1x1_planes, kernel_size=1)
+#         self.expand1x1_activation = nn.ReLU(inplace=True)
+#         self.expand3x3 = nn.Conv2d(squeeze_planes, expand3x3_planes, kernel_size=3, padding=1)
+#         self.expand3x3_activation = nn.ReLU(inplace=True)
+#         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=stride, padding=1)
+#
+#     def forward(self, x):
+#         x = self.squeeze_activation(self.squeeze(x))
+#         x = torch.cat([
+#             self.expand1x1_activation(self.expand1x1(x)),
+#             self.expand3x3_activation(self.expand3x3(x))
+#         ], 1)
+#         x = self.maxpool(x)
+#         # print x.shape
+#         return x
 
 
 class BasicBlock(nn.Module):
