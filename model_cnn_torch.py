@@ -279,7 +279,7 @@ class ModuleTrain:
     def train(self, epoch, decay_epoch=40, save_best=True):
         print('[train] epoch: %d' % epoch)
         for epoch_i in range(epoch):
-
+            train_loss = 0.0
             if epoch_i >= decay_epoch and epoch_i % decay_epoch == 0:                   # 减小学习速率
                 self.lr = self.lr * 0.1
                 self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
@@ -294,21 +294,17 @@ class ModuleTrain:
 
                 # 梯度清0
                 self.optimizer.zero_grad()
-
                 # 计算损失
                 output = self.model(data)
                 loss = self.loss(output.type(torch.FloatTensor), target.type(torch.FloatTensor))
-
+                train_loss += loss.item()
                 # 反向传播计算梯度
                 loss.backward()
-
                 # 更新参数
                 self.optimizer.step()
 
-                # update
-                if batch_idx == 0:
-                    print('[Train] Epoch: {} [{}/{}]\tLoss: {:.6f}\tlr: {}'.format(epoch_i, batch_idx * len(data),
-                        len(self.train_loader.dataset), loss.item()/self.batch_size, self.lr))
+            train_loss /= len(self.train_loader.dataset)
+            print('[Train] Epoch: {} \tLoss: {:.6f}\tlr: {}'.format(epoch_i, train_loss, self.lr))
 
             test_loss = self.test()
             if save_best is True:
@@ -327,7 +323,7 @@ class ModuleTrain:
         self.save(self.model_file)
 
     def test(self, show_img=False):
-        test_loss = 0
+        test_loss = 0.0
         correct = 0
 
         # 测试集
@@ -353,7 +349,7 @@ class ModuleTrain:
                     self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
 
         test_loss /= len(self.test_loader.dataset)
-        print('[Test] set: Average loss: {:.4f}\n'.format(test_loss))
+        print('[Test] set: Average loss: {:.6f}\n'.format(test_loss))
         return test_loss
 
     def load(self, name):
