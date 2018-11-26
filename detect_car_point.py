@@ -13,7 +13,7 @@ def parse_argvs():
 
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./model/resnet18_params_sq.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
-    parser.add_argument('--batch_size', type=int, help='batch size', default=64)
+    parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--img_size', type=int, help='imgsize', default=224)
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=200, img_size=224, lr=1e-2)
 
     output_model_path = args.output_model_path
-    num_classes = args.num_classes
+    num_classes = args.classes_num
     batch_size = args.batch_size
     img_size = args.img_size
     lr = args.lr
