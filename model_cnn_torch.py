@@ -213,7 +213,7 @@ class CNN(nn.Module):
 
 class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3,
-                 re_train=False, best_loss=0.3):
+                 re_train=False, best_loss=0.1):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
