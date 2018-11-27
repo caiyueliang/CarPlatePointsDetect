@@ -14,11 +14,13 @@ def parse_argvs():
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
-    parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
+    # parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
+    parser.add_argument('--model_name', type=str, help='model name', default='resnet34_sq')
     # parser.add_argument('--model_name', type=str, help='model name', default='resnet18_sq')
+    # parser.add_argument('--model_name', type=str, help='model name', default='resnet18')
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
-    parser.add_argument('--batch_size', type=int, help='batch size', default=8)
+    parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--img_size', type=int, help='img size', default=224)
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
 
@@ -26,8 +28,8 @@ def parse_argvs():
     parser.add_argument('--downsampling', type=int, help='down sampling: 8 16 32', default=8)
     parser.add_argument('--num_channels', type=int, help='num channels', default=3)
     parser.add_argument('--kernel_size', type=int, help='kernel size', default=3)
-    parser.add_argument('--width_multiplier', type=float, help='width multiplier', default=0.125)
-    parser.add_argument('--dropout_prob', type=float, help='dropout prob', default=0.6)
+    parser.add_argument('--width_multiplier', type=float, help='width multiplier', default=0.25)
+    parser.add_argument('--dropout_prob', type=float, help='dropout prob', default=0.2)
     parser.add_argument('--img_height', type=int, help='img_height', default=224)
     parser.add_argument('--img_width', type=int, help='img_width', default=224)
     parser.add_argument('--cuda', type=bool, help='use gpu', default=True)
@@ -49,6 +51,9 @@ if __name__ == '__main__':
     elif 'resnet18_sq' in args.model_name:
         model = model_resnet_squeeze.resnet18(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet18_sq_params.pkl')
+    elif 'resnet34_sq' in args.model_name:
+        model = model_resnet_squeeze.resnet34(num_classes=args.classes_num)
+        output_model_path = os.path.join(args.output_model_path, 'resnet34_sq_params.pkl')
     elif 'inception_v3' in args.model_name:
         model = model_inception.Inception3(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'inception_v3_params.pkl')

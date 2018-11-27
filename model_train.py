@@ -155,7 +155,7 @@ class MyLoss(nn.Module):
 
 class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model, img_size=224, batch_size=16, lr=1e-3,
-                 re_train=False, best_loss=1, use_gpu=False):
+                 re_train=False, best_loss=0.2, use_gpu=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -171,12 +171,6 @@ class ModuleTrain:
                 self.use_gpu = True
             else:
                 self.use_gpu = False
-
-        print('[ModuleCNN]')
-        print('train_path: %s' % self.train_path)
-        print('test_path: %s' % self.test_path)
-        print('img_size: %d' % self.img_size)
-        print('batch_size: %d' % self.batch_size)
 
         # 模型
         self.model = model
