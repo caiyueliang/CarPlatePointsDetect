@@ -155,7 +155,7 @@ class MyLoss(nn.Module):
 
 class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model, img_size=224, batch_size=16, lr=1e-3,
-                 re_train=False, best_loss=1):
+                 re_train=False, best_loss=1, use_gpu=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -163,12 +163,14 @@ class ModuleTrain:
         self.batch_size = batch_size
         self.re_train = re_train                        # 不加载训练模型，重新进行训练
         self.best_loss = best_loss                      # 最好的损失值，小于这个值，才会保存模型
+        self.use_gpu = False
 
-        print("gpu available: %s" % str(torch.cuda.is_available()))
-        if torch.cuda.is_available():
-            self.use_gpu = True
-        else:
-            self.use_gpu = False
+        if use_gpu is True:
+            print("gpu available: %s" % str(torch.cuda.is_available()))
+            if torch.cuda.is_available():
+                self.use_gpu = True
+            else:
+                self.use_gpu = False
 
         print('[ModuleCNN]')
         print('train_path: %s' % self.train_path)

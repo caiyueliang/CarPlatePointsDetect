@@ -60,6 +60,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     img_size = args.img_size
     lr = args.lr
+    use_gpu = args.cuda
 
     print('train_path: %s' % train_path)
     print('test_path: %s' % test_path)
@@ -68,9 +69,10 @@ if __name__ == '__main__':
     print('img_size: %d' % img_size)
     print('batch_size: %d' % batch_size)
     print('lr: %s' % lr)
+    print('use_gpu: %s' % use_gpu)
 
     model_train = ModuleTrain(train_path=train_path, test_path=test_path, model_file=output_model_path, model=model,
-                              batch_size=batch_size, img_size=img_size, lr=lr)
+                              batch_size=batch_size, img_size=img_size, lr=lr, use_gpu=use_gpu)
 
     model_train.train(200, 80)
     # model_train.test(show_img=True)
