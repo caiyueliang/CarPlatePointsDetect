@@ -14,6 +14,7 @@ from torchvision.transforms import functional
 from torch.autograd import Variable
 from torch.utils import data
 import cv2
+import time
 
 
 # 图片加载类
@@ -154,7 +155,7 @@ class MyLoss(nn.Module):
 
 class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model, img_size=224, batch_size=16, lr=1e-3,
-                 re_train=False, best_loss=0.1):
+                 re_train=False, best_loss=1):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -267,6 +268,7 @@ class ModuleTrain:
         test_loss = 0.0
         correct = 0
 
+        time_start = time.time()
         # 测试集
         for data, target, img_files in self.test_loader:
             # print('[test] data.size: ', data.size())
@@ -288,9 +290,11 @@ class ModuleTrain:
             if show_img:
                 for i in range(len(output[:, 1])):
                     self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
-
+        time_end = time.time()
         test_loss /= len(self.test_loader.dataset)
-        print('[Test] set: Average loss: {:.6f}\n'.format(test_loss))
+        time_avg = float(time_end - time_start) / float(len(self.test_loader.dataset))
+
+        print('[Test] set: Average loss: {:.6f} time: {:.6f}\n'.format(test_loss, time_avg))
         return test_loss
 
     def load(self, name):
