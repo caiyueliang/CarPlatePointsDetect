@@ -16,6 +16,7 @@ def parse_argvs():
 
     # parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
     parser.add_argument('--model_name', type=str, help='model name', default='resnet34_sq')
+    # parser.add_argument('--model_name', type=str, help='model name', default='inception_v3')
     # parser.add_argument('--model_name', type=str, help='model name', default='resnet18_sq')
     # parser.add_argument('--model_name', type=str, help='model name', default='resnet18')
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints')
@@ -35,7 +36,7 @@ def parse_argvs():
     parser.add_argument('--cuda', type=bool, help='use gpu', default=True)
 
     input_args = parser.parse_args()
-    print(input_args)
+    # print(input_args)
     return input_args
 
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
         model = model_resnet_squeeze.resnet34(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet34_sq_params.pkl')
     elif 'inception_v3' in args.model_name:
-        model = model_inception.Inception3(num_classes=args.classes_num)
+        model = model_inception.Inception3(num_classes=args.classes_num, aux_logits=False)
         output_model_path = os.path.join(args.output_model_path, 'inception_v3_params.pkl')
     else:
         model = model_resnet_torch.resnet18(num_classes=args.classes_num)
