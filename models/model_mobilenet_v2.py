@@ -100,7 +100,7 @@ class MobileNetV2(nn.Module):
                                  {'t': 6, 'c': 160, 'n': 3, 's': 2},
                                  {'t': 6, 'c': 320, 'n': 1, 's': 1},
                                  {'t': None, 'c': 1280, 'n': 1, 's': 1}]
-        self.num_classes = args.num_classes
+        self.num_classes = args.classes_num
 
         ###############################################################################################################
         # Feature Extraction part

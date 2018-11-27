@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from model_train import ModuleTrain
 from models import model_resnet_torch
 from models import model_resnet_squeeze
+from models import model_mobilenet_v2
 from torchvision import models
 
 
@@ -11,11 +12,20 @@ def parse_argvs():
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
-    parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints/resnet18_params_sq.pkl')
+    parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints/mobilenet_v2_params.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
-    parser.add_argument('--img_size', type=int, help='imgsize', default=224)
+    parser.add_argument('--img_size', type=int, help='img size', default=224)
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
+
+    # mobilenet 使用参数
+    parser.add_argument('--downsampling', type=int, help='down sampling: 8 16 32', default=8)
+    parser.add_argument('--num_channels', type=int, help='num channels', default=64)
+    parser.add_argument('--kernel_size', type=int, help='kernel size', default=3)
+    parser.add_argument('--width_multiplier', type=float, help='width multiplier', default=0.2)
+    parser.add_argument('--dropout_prob', type=float, help='dropout prob', default=0.6)
+    parser.add_argument('--img_height', type=int, help='img_height', default=224)
+    parser.add_argument('--img_width', type=int, help='img_width', default=224)
 
     input_args = parser.parse_args()
     print(input_args)
@@ -57,7 +67,8 @@ if __name__ == '__main__':
     print('batch_size: %d' % batch_size)
     print('lr: %s' % lr)
 
-    model = model_resnet_squeeze.resnet18(num_classes=num_classes)
+    # model = model_resnet_squeeze.resnet18(num_classes=num_classes)
+    model = model_mobilenet_v2.MobileNetV2(args)
     model_train = ModuleTrain(train_path=train_path, test_path=test_path, model_file=output_model_path, model=model,
                               batch_size=batch_size, img_size=img_size, lr=lr)
 
