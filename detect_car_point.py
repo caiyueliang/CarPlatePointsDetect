@@ -14,18 +14,19 @@ def parse_argvs():
 
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints/mobilenet_v2_params.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
-    parser.add_argument('--batch_size', type=int, help='batch size', default=32)
+    parser.add_argument('--batch_size', type=int, help='batch size', default=8)
     parser.add_argument('--img_size', type=int, help='img size', default=224)
     parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
 
     # mobilenet 使用参数
     parser.add_argument('--downsampling', type=int, help='down sampling: 8 16 32', default=8)
-    parser.add_argument('--num_channels', type=int, help='num channels', default=64)
+    parser.add_argument('--num_channels', type=int, help='num channels', default=3)
     parser.add_argument('--kernel_size', type=int, help='kernel size', default=3)
     parser.add_argument('--width_multiplier', type=float, help='width multiplier', default=0.2)
     parser.add_argument('--dropout_prob', type=float, help='dropout prob', default=0.6)
     parser.add_argument('--img_height', type=int, help='img_height', default=224)
     parser.add_argument('--img_width', type=int, help='img_width', default=224)
+    parser.add_argument('--cuda', type=bool, help='use gpu', default=True)
 
     input_args = parser.parse_args()
     print(input_args)

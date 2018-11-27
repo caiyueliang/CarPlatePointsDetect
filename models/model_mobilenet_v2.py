@@ -12,13 +12,13 @@ class InvertedResidualBlock(nn.Module):
         self.block = nn.Sequential(
             nn.Conv2d(in_channels, in_channels * expansion_factor, 1, bias=False),  # 扩展通道
             nn.BatchNorm2d(in_channels * expansion_factor),
-            nn.ReLU6(inplace=True),
+            nn.ReLU6(inplace=False),
 
             nn.Conv2d(in_channels * expansion_factor, in_channels * expansion_factor,
                       kernel_size, stride, 1,
                       groups=in_channels * expansion_factor, bias=False),   # depth-wise卷积操作
             nn.BatchNorm2d(in_channels * expansion_factor),
-            nn.ReLU6(inplace=True),
+            nn.ReLU6(inplace=False),
 
             nn.Conv2d(in_channels * expansion_factor, out_channels, 1,
                       bias=False),                                          # 恢复输出通道
@@ -50,9 +50,9 @@ def conv2d_bn_relu6(in_channels, out_channels, kernel_size=3, stride=2, dropout_
         nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False),
         nn.BatchNorm2d(out_channels),
         # For efficiency, Dropout is placed before Relu.
-        nn.Dropout2d(dropout_prob, inplace=True),
+        nn.Dropout2d(dropout_prob, inplace=False),
         # Assumption: Relu6 is used everywhere.
-        nn.ReLU6(inplace=True)
+        nn.ReLU6(inplace=False)
     )
 
 
@@ -130,10 +130,10 @@ class MobileNetV2(nn.Module):
         ###############################################################################################################
         # Classification part
         # 以上输出的特征图进行池化 分类
-        self.network.append(nn.Dropout2d(args.dropout_prob, inplace=True))
+        self.network.append(nn.Dropout2d(args.dropout_prob, inplace=False))
         self.network.append(nn.AvgPool2d(
             (args.img_height // args.downsampling, args.img_width // args.downsampling)))
-        self.network.append(nn.Dropout2d(args.dropout_prob, inplace=True))
+        self.network.append(nn.Dropout2d(args.dropout_prob, inplace=False))
         self.network.append(
             nn.Conv2d(int(self.network_settings[8]['c'] * args.width_multiplier), self.num_classes, 1, bias=True))
 
