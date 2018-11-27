@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 from argparse import ArgumentParser
 from model_train import ModuleTrain
 from models import model_resnet_torch
@@ -12,6 +13,7 @@ def parse_argvs():
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
+    parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints/mobilenet_v2_params.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=8)
@@ -39,22 +41,16 @@ if __name__ == '__main__':
     train_path = args.train_path
     test_path = args.test_path
 
-    # FILE_PATH = './Model/model_params.pkl'
-    # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, img_size=178, lr=1e-4)
+    if 'mobilenet_v2' in args.model_name:
+        model = model_mobilenet_v2.MobileNetV2(args)
+        output_model_path = os.path.join(args.output_model_path, 'mobilenet_v2_params.pkl')
+    elif 'resnet18_sq' in args.model_name:
+        model = model_resnet_squeeze.resnet18(num_classes=args.num_classes)
+        output_model_path = os.path.join(args.output_model_path, 'resnet18_sq_params.pkl')
+    else:
+        model = models.resnet18(num_classes=args.num_classes)
+        output_model_path = os.path.join(args.output_model_path, 'resnet18_params.pkl')
 
-    # FILE_PATH = './Model/my_resnet18_params.pkl'
-    # model = model_resnet_torch.ResNet18(num_classes=8)
-    # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=16, img_size=224, lr=1e-2)
-
-    # FILE_PATH = './Model/resnet18_params.pkl'
-    # model = models.resnet18(num_classes=8)
-    # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=32, img_size=224, lr=1e-3)
-
-    # FILE_PATH = './Model/Squeezenet1_1.pkl'
-    # model = models.squeezenet1_1(num_classes=8)
-    # model_train = model_cnn_torch.ModuleTrain(train_path, test_path, FILE_PATH, model=model, batch_size=200, img_size=224, lr=1e-2)
-
-    output_model_path = args.output_model_path
     num_classes = args.classes_num
     batch_size = args.batch_size
     img_size = args.img_size
@@ -68,8 +64,6 @@ if __name__ == '__main__':
     print('batch_size: %d' % batch_size)
     print('lr: %s' % lr)
 
-    # model = model_resnet_squeeze.resnet18(num_classes=num_classes)
-    model = model_mobilenet_v2.MobileNetV2(args)
     model_train = ModuleTrain(train_path=train_path, test_path=test_path, model_file=output_model_path, model=model,
                               batch_size=batch_size, img_size=img_size, lr=lr)
 
