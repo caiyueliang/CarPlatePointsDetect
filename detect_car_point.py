@@ -52,7 +52,7 @@ if __name__ == '__main__':
         model = models.Inception3(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'inception_v3_params.pkl')
     else:
-        model = models.resnet18(num_classes=args.classes_num)
+        model = model_resnet_torch.resnet18(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet18_params.pkl')
 
     num_classes = args.classes_num
