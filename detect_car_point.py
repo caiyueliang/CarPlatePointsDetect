@@ -11,7 +11,7 @@ def parse_argvs():
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
-    parser.add_argument("--output_model_path", type=str, help="output model path", default='./models/resnet18_params_sq.pkl')
+    parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints/resnet18_params_sq.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--img_size', type=int, help='imgsize', default=224)
