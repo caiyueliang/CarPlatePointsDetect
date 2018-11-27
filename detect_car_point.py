@@ -5,7 +5,8 @@ from model_train import ModuleTrain
 from models import model_resnet_torch
 from models import model_resnet_squeeze
 from models import model_mobilenet_v2
-from torchvision import models
+from models import model_inception
+# from torchvision import models
 
 
 def parse_argvs():
@@ -49,7 +50,7 @@ if __name__ == '__main__':
         model = model_resnet_squeeze.resnet18(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet18_sq_params.pkl')
     elif 'inception_v3' in args.model_name:
-        model = models.Inception3(num_classes=args.classes_num)
+        model = model_inception.Inception3(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'inception_v3_params.pkl')
     else:
         model = model_resnet_torch.resnet18(num_classes=args.classes_num)
