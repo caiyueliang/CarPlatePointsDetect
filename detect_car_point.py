@@ -48,6 +48,9 @@ if __name__ == '__main__':
     elif 'resnet18_sq' in args.model_name:
         model = model_resnet_squeeze.resnet18(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet18_sq_params.pkl')
+    elif 'inception_v3' in args.model_name:
+        model = models.Inception3(num_classes=args.classes_num)
+        output_model_path = os.path.join(args.output_model_path, 'inception_v3_params.pkl')
     else:
         model = models.resnet18(num_classes=args.classes_num)
         output_model_path = os.path.join(args.output_model_path, 'resnet18_params.pkl')
