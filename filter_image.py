@@ -177,7 +177,7 @@ if __name__ == '__main__':
     image_dir_1 = "../capture_image/more_997786_sign/failed_detect_routh/"
     image_dir_2 = "../capture_image/more_997786_no/failed_detect_routh/"
 
-    output_dir = "./Data/"
+    output_dir = "./data/"
 
     index_file = "./index.txt"
     filter_img = FilterImage(image_dir_1, image_dir_2, output_dir, index_file)

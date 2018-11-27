@@ -152,67 +152,8 @@ class MyLoss(nn.Module):
         return loss_list
 
 
-class CNN(nn.Module):
-    def __init__(self):
-        super(CNN, self).__init__()
-
-        self.batch_1 = nn.BatchNorm2d(3)
-        self.conv_1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3)
-        self.batch_2 = nn.BatchNorm2d(32)
-        self.conv_2 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3)
-        self.batch_3 = nn.BatchNorm2d(32)
-        self.conv_3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
-
-        self.dropout_1 = nn.Dropout(p=0.5)
-
-        self.fc1 = nn.Linear(in_features=64*20*20, out_features=64)
-        self.fc2 = nn.Linear(in_features=64, out_features=8)
-
-    def forward(self, x):
-        x1 = self.batch_1(x)
-        x1 = self.conv_1(x1)
-        # print('conv1', x1.size())
-        x1 = F.relu(x1)
-        x1 = F.max_pool2d(x1, kernel_size=2, stride=2, padding=0)
-        # print('max_pool2d', x1.size())
-
-        x2 = self.batch_2(x1)
-        x2 = self.conv_2(x2)
-        # print('conv2', x2.size())
-        x2 = F.relu(x2)
-        x2 = F.max_pool2d(x2, kernel_size=2, stride=2, padding=0)
-        # print('max_pool2d', x2.size())
-
-        x3 = self.batch_3(x2)
-        x3 = self.conv_3(x3)
-        # print('conv3', x3.size())
-        x3 = F.relu(x3)
-        x3 = F.max_pool2d(x3, kernel_size=2, stride=2, padding=0)
-        # print('max_pool2d', x3.size())
-
-        x4 = self.dropout_1(x3)
-        # x4 = x4.view(x4.size(0), -1)
-        x4 = x4.view(-1, 64*20*20)
-        # print('view', x4.size())
-        x4 = F.relu(self.fc1(x4))
-        # print('fc1', x4.size())
-        x4 = F.relu(self.fc2(x4))
-        # print('fc2', x4.size())
-
-        output = x4
-        return output
-
-    def load(self, name):
-        print('[Load model] %s...' % name)
-        self.load_state_dict(torch.load(name))
-
-    def save(self, name):
-        print('[Save model] %s ...' % name)
-        torch.save(self.state_dict(), name)
-
-
 class ModuleTrain:
-    def __init__(self, train_path, test_path, model_file, model=CNN(), img_size=178, batch_size=8, lr=1e-3,
+    def __init__(self, train_path, test_path, model_file, model, img_size=224, batch_size=16, lr=1e-3,
                  re_train=False, best_loss=0.1):
         self.train_path = train_path
         self.test_path = test_path

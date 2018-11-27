@@ -1,8 +1,8 @@
 # coding=utf-8
 from argparse import ArgumentParser
-import model_cnn_torch
-import model_resnet_torch
-import model_resnet_squeeze
+from model_train import ModuleTrain
+from models import model_resnet_torch
+from models import model_resnet_squeeze
 from torchvision import models
 
 
@@ -11,7 +11,7 @@ def parse_argvs():
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
-    parser.add_argument("--output_model_path", type=str, help="output model path", default='./model/resnet18_params_sq.pkl')
+    parser.add_argument("--output_model_path", type=str, help="output model path", default='./models/resnet18_params_sq.pkl')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--img_size', type=int, help='imgsize', default=224)
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     print('lr: %s' % lr)
 
     model = model_resnet_squeeze.resnet18(num_classes=num_classes)
-    model_train = model_cnn_torch.ModuleTrain(train_path, test_path, output_model_path, model=model,
-                                              batch_size=batch_size, img_size=img_size, lr=lr)
+    model_train = ModuleTrain(train_path=train_path, test_path=test_path, model_file=output_model_path, model=model,
+                              batch_size=batch_size, img_size=img_size, lr=lr)
 
     model_train.train(200, 80)
     # model_train.test(show_img=True)
