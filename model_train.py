@@ -155,7 +155,7 @@ class MyLoss(nn.Module):
 
 class ModuleTrain:
     def __init__(self, train_path, test_path, model_file, model, img_size=224, batch_size=16, lr=1e-3,
-                 re_train=False, best_loss=0.2, use_gpu=False):
+                 re_train=False, best_loss=10, use_gpu=False):
         self.train_path = train_path
         self.test_path = test_path
         self.model_file = model_file
@@ -241,7 +241,7 @@ class ModuleTrain:
                 # 更新参数
                 self.optimizer.step()
 
-            train_loss /= len(self.train_loader.dataset)
+            train_loss /= len(self.train_loader)
             print('[Train] Epoch: {} \tLoss: {:.6f}\tlr: {}'.format(epoch_i, train_loss, self.lr))
 
             test_loss = self.test()
@@ -287,7 +287,7 @@ class ModuleTrain:
                 for i in range(len(output[:, 1])):
                     self.show_img(img_files[i], output[i].cpu().detach().numpy(), target[i].cpu().detach().numpy())
         time_end = time.time()
-        test_loss /= len(self.test_loader.dataset)
+        test_loss /= len(self.test_loader)
         time_avg = float(time_end - time_start) / float(len(self.test_loader.dataset))
 
         print('[Test] set: Average loss: {:.6f} time: {:.6f}\n'.format(test_loss, time_avg))

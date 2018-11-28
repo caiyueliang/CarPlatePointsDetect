@@ -15,10 +15,10 @@ def parse_argvs():
     parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
 
     # parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
-    parser.add_argument('--model_name', type=str, help='model name', default='resnet34_sq')
+    # parser.add_argument('--model_name', type=str, help='model name', default='resnet34_sq')
     # parser.add_argument('--model_name', type=str, help='model name', default='inception_v3')
     # parser.add_argument('--model_name', type=str, help='model name', default='resnet18_sq')
-    # parser.add_argument('--model_name', type=str, help='model name', default='resnet18')
+    parser.add_argument('--model_name', type=str, help='model name', default='resnet18')
     parser.add_argument("--output_model_path", type=str, help="output model path", default='./checkpoints')
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
