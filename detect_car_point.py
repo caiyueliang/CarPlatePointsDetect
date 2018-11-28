@@ -6,7 +6,7 @@ from models import model_resnet_torch
 from models import model_resnet_squeeze
 from models import model_mobilenet_v2
 from models import model_inception
-# from torchvision import models
+from torchvision import models
 
 
 def parse_argvs():
