@@ -80,5 +80,5 @@ if __name__ == '__main__':
     model_train = ModuleTrain(train_path=train_path, test_path=test_path, model_file=output_model_path, model=model,
                               batch_size=batch_size, img_size=img_size, lr=lr, use_gpu=use_gpu)
 
-    model_train.train(200, 80)
+    model_train.train(300, 100)
     # model_train.test(show_img=True)
