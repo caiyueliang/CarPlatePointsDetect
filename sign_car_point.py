@@ -310,8 +310,8 @@ if __name__ == '__main__':
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/failed_1"
-    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_7"
-    copy_dir = '../Data/car_finemap_detect/car_plate_test/failed_7'
+    image_dir = "../Data/car_finemap_detect_new/car_plate_train/failed_7"
+    copy_dir = '../Data/car_finemap_detect_new/car_plate_test/failed_7'
 
     label_file = "./label.txt"
     copy_file = "./copy_label.txt"
