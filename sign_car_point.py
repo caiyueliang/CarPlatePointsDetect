@@ -24,10 +24,12 @@ def mkdir_if_not_exist(path):
 
 
 class SignCarPoint:
-    def __init__(self, image_dir, label_file, index_file):
+    def __init__(self, image_dir, label_file, index_file, copy_dir, copy_file):
         self.img_files = common.get_files(image_dir)
         self.image_dir = image_dir
         self.label_file = label_file
+        self.copy_dir = copy_dir
+        self.copy_file = copy_file
         self.car_points = []
         self.index_file = index_file
         return
@@ -69,7 +71,7 @@ class SignCarPoint:
 
                 # 保存这张图片
                 k = cv2.waitKey(1) & 0xFF
-                if k == ord('s'):
+                if k == ord('s') or k == ord('1'):
                     print('save ...')
                     data = self.img_files[start_i] + " " + str(len(self.car_points))
                     for (x, y) in self.car_points:
@@ -77,6 +79,38 @@ class SignCarPoint:
                     data += '\n'
 
                     common.write_data(self.label_file, data, 'a+')
+                    start_i += 1
+                    common.write_data(self.index_file, str(start_i), 'w')
+                    self.car_points = []
+                    break
+
+                if k == ord('2'):
+                    print('save and copy ...')
+                    data = self.img_files[start_i] + " " + str(len(self.car_points))
+                    for (x, y) in self.car_points:
+                        data += ' ' + str(x / float(times)) + ' ' + str(y / float(times))
+                    data += '\n'
+
+                    common.write_data(self.label_file, data, 'a+')
+                    common.write_data(self.copy_file, data, 'a+')
+                    shutil.copy(self.img_files[start_i], os.path.join(self.copy_dir,
+                                                                      self.img_files[start_i].split('/')[-1]))
+                    start_i += 1
+                    common.write_data(self.index_file, str(start_i), 'w')
+                    self.car_points = []
+                    break
+
+                if k == ord('3'):
+                    print('copy only ...')
+                    data = self.img_files[start_i] + " " + str(len(self.car_points))
+                    for (x, y) in self.car_points:
+                        data += ' ' + str(x / float(times)) + ' ' + str(y / float(times))
+                    data += '\n'
+
+                    # common.write_data(self.label_file, data, 'a+')
+                    common.write_data(self.copy_file, data, 'a+')
+                    shutil.move(self.img_files[start_i], os.path.join(self.copy_dir,
+                                                                      self.img_files[start_i].split('/')[-1]))
                     start_i += 1
                     common.write_data(self.index_file, str(start_i), 'w')
                     self.car_points = []
@@ -276,11 +310,15 @@ if __name__ == '__main__':
     # image_dir = "../Data/car_finemap_detect/car_plate_train/data_3"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/szlg_1"
     # image_dir = "../Data/car_finemap_detect/car_plate_train/failed_1"
-    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_5"
+    image_dir = "../Data/car_finemap_detect/car_plate_train/failed_7"
+    copy_dir = '../Data/car_finemap_detect/car_plate_test/failed_7'
 
     label_file = "./label.txt"
+    copy_file = "./copy_label.txt"
     index_file = "./index.txt"
-    sign_point = SignCarPoint(image_dir, label_file, index_file)
+
+    sign_point = SignCarPoint(image_dir=image_dir, label_file=label_file, index_file=index_file,
+                              copy_dir=copy_dir, copy_file=copy_file)
 
     sign_point.sign_start()
 
