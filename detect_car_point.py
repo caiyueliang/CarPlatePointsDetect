@@ -23,7 +23,7 @@ def parse_argvs():
     parser.add_argument('--classes_num', type=int, help='classes num', default=8)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--img_size', type=int, help='img size', default=224)
-    parser.add_argument('--lr', type=float, help='learning rate', default=0.01)
+    parser.add_argument('--lr', type=float, help='learning rate', default=0.0001)
 
     # mobilenet 使用参数
     parser.add_argument('--downsampling', type=int, help='down sampling: 8 16 32', default=8)

@@ -223,6 +223,7 @@ class ModuleTrain:
                 self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
             print('================================================')
+            self.model.train()
             for batch_idx, (data, target, _) in enumerate(self.train_loader):
                 data, target = Variable(data), Variable(target)
 
@@ -266,6 +267,7 @@ class ModuleTrain:
 
         time_start = time.time()
         # 测试集
+        self.model.eval()
         for data, target, img_files in self.test_loader:
             # print('[test] data.size: ', data.size())
             data, target = Variable(data), Variable(target)
