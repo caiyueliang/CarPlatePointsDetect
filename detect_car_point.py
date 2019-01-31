@@ -12,7 +12,8 @@ from torchvision import models
 def parse_argvs():
     parser = ArgumentParser(description='car_classifier')
     parser.add_argument('--train_path', type=str, help='train dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
-    parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
+    # parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_test')
+    parser.add_argument('--test_path', type=str, help='test dataset path', default='../Data/car_finemap_detect_new/car_plate_train')
 
     # parser.add_argument('--model_name', type=str, help='model name', default='mobilenet_v2')
     # parser.add_argument('--model_name', type=str, help='model name', default='resnet34_sq')
