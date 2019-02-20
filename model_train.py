@@ -37,8 +37,8 @@ class MyDataset(data.Dataset):
         img_file = os.path.join(self.root_dir, str_list[0])
 
         # print('img_file', img_file)
-        # img = Image.open(img_file)
-        img = cv2.imread(img_file)
+        img = Image.open(img_file)
+        # img = cv2.imread(img_file)
 
         label = str_list[2:]
         label = map(float, label)
@@ -49,10 +49,11 @@ class MyDataset(data.Dataset):
             img, label = self.random_crop(img, label)                   # 图片做随机裁剪
             # self.show_img(img, label)
 
-        old_size = img.shape[0]
+        old_size = img.size[0]
+        # old_size = img.shape[0]
         label = label * self.img_size / old_size
 
-        img = cv2.resize(img, (self.img_size, self.img_size))
+        # img = cv2.resize(img, (self.img_size, self.img_size))
         if self.transforms:
             img = self.transforms(img)
 
@@ -76,10 +77,11 @@ class MyDataset(data.Dataset):
         # print('random_crop', labels)
         # mode = random.choice([None, 0.3, 0.5, 0.7, 0.9])
         # random.randrange(int(0.3*short_size), short_size)
-        # img_cv = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        img_cv = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
         # cv2.imshow('img_cv', img_cv)
 
-        imh, imw, _ = img.shape
+        imh, imw, _ = img_cv.shape
+
         # short_size = min(imw, imh)
         # print(imh, imw, short_size)
 
@@ -121,11 +123,11 @@ class MyDataset(data.Dataset):
             y2 = imh - crop
 
         # print('x1, y1, x2, y2', x1, y1, x2, y2)
-        img_cv = img[y1:y2, x1:x2]
+        img_cv = img_cv[y1:y2, x1:x2]
         # cv2.imshow('crop_img_cv', img_cv)
         # cv2.waitKey(0)
 
-        # img = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+        img = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
         return img, labels
 
     def show_img(self, img, output):
@@ -188,13 +190,13 @@ class ModuleTrain:
 
         # RandomHorizontalFlip
         self.transform_train = T.Compose([
-            # T.Resize((self.img_size, self.img_size)),
+            T.Resize((self.img_size, self.img_size)),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5]),
         ])
 
         self.transform_test = T.Compose([
-            # T.Resize((self.img_size, self.img_size)),
+            T.Resize((self.img_size, self.img_size)),
             T.ToTensor(),
             T.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
         ])
